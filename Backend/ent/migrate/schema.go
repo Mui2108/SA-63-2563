@@ -12,43 +12,25 @@ var (
 	GendersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "gender_type", Type: field.TypeString},
-		{Name: "patient_genders", Type: field.TypeInt, Nullable: true},
 	}
 	// GendersTable holds the schema information for the "genders" table.
 	GendersTable = &schema.Table{
-		Name:       "genders",
-		Columns:    GendersColumns,
-		PrimaryKey: []*schema.Column{GendersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:  "genders_patients_genders",
-				Columns: []*schema.Column{GendersColumns[2]},
-
-				RefColumns: []*schema.Column{PatientsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
+		Name:        "genders",
+		Columns:     GendersColumns,
+		PrimaryKey:  []*schema.Column{GendersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
 	}
 	// JobsColumns holds the columns for the "jobs" table.
 	JobsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "job_name", Type: field.TypeString},
-		{Name: "patient_jobs", Type: field.TypeInt, Nullable: true},
 	}
 	// JobsTable holds the schema information for the "jobs" table.
 	JobsTable = &schema.Table{
-		Name:       "jobs",
-		Columns:    JobsColumns,
-		PrimaryKey: []*schema.Column{JobsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:  "jobs_patients_jobs",
-				Columns: []*schema.Column{JobsColumns[2]},
-
-				RefColumns: []*schema.Column{PatientsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
+		Name:        "jobs",
+		Columns:     JobsColumns,
+		PrimaryKey:  []*schema.Column{JobsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
 	}
 	// PatientsColumns holds the columns for the "patients" table.
 	PatientsColumns = []*schema.Column{
@@ -58,34 +40,50 @@ var (
 		{Name: "last_name", Type: field.TypeString},
 		{Name: "allergic", Type: field.TypeString},
 		{Name: "age", Type: field.TypeInt},
+		{Name: "gender_genders", Type: field.TypeInt, Nullable: true},
+		{Name: "job_jobs", Type: field.TypeInt, Nullable: true},
+		{Name: "title_titles", Type: field.TypeInt, Nullable: true},
 	}
 	// PatientsTable holds the schema information for the "patients" table.
 	PatientsTable = &schema.Table{
-		Name:        "patients",
-		Columns:     PatientsColumns,
-		PrimaryKey:  []*schema.Column{PatientsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{},
+		Name:       "patients",
+		Columns:    PatientsColumns,
+		PrimaryKey: []*schema.Column{PatientsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:  "patients_genders_genders",
+				Columns: []*schema.Column{PatientsColumns[6]},
+
+				RefColumns: []*schema.Column{GendersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:  "patients_jobs_jobs",
+				Columns: []*schema.Column{PatientsColumns[7]},
+
+				RefColumns: []*schema.Column{JobsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:  "patients_titles_titles",
+				Columns: []*schema.Column{PatientsColumns[8]},
+
+				RefColumns: []*schema.Column{TitlesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// TitlesColumns holds the columns for the "titles" table.
 	TitlesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "title_type", Type: field.TypeString},
-		{Name: "patient_titles", Type: field.TypeInt, Nullable: true},
 	}
 	// TitlesTable holds the schema information for the "titles" table.
 	TitlesTable = &schema.Table{
-		Name:       "titles",
-		Columns:    TitlesColumns,
-		PrimaryKey: []*schema.Column{TitlesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:  "titles_patients_titles",
-				Columns: []*schema.Column{TitlesColumns[2]},
-
-				RefColumns: []*schema.Column{PatientsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
+		Name:        "titles",
+		Columns:     TitlesColumns,
+		PrimaryKey:  []*schema.Column{TitlesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
@@ -97,7 +95,7 @@ var (
 )
 
 func init() {
-	GendersTable.ForeignKeys[0].RefTable = PatientsTable
-	JobsTable.ForeignKeys[0].RefTable = PatientsTable
-	TitlesTable.ForeignKeys[0].RefTable = PatientsTable
+	PatientsTable.ForeignKeys[0].RefTable = GendersTable
+	PatientsTable.ForeignKeys[1].RefTable = JobsTable
+	PatientsTable.ForeignKeys[2].RefTable = TitlesTable
 }

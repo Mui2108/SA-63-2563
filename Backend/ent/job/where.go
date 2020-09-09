@@ -209,25 +209,25 @@ func JobNameContainsFold(v string) predicate.Job {
 	})
 }
 
-// HasJob applies the HasEdge predicate on the "job" edge.
-func HasJob() predicate.Job {
+// HasJobs applies the HasEdge predicate on the "jobs" edge.
+func HasJobs() predicate.Job {
 	return predicate.Job(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(JobTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, JobTable, JobColumn),
+			sqlgraph.To(JobsTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, JobsTable, JobsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasJobWith applies the HasEdge predicate on the "job" edge with a given conditions (other predicates).
-func HasJobWith(preds ...predicate.Patient) predicate.Job {
+// HasJobsWith applies the HasEdge predicate on the "jobs" edge with a given conditions (other predicates).
+func HasJobsWith(preds ...predicate.Patient) predicate.Job {
 	return predicate.Job(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(JobInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, JobTable, JobColumn),
+			sqlgraph.To(JobsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, JobsTable, JobsColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

@@ -26,23 +26,19 @@ func (jc *JobCreate) SetJobName(s string) *JobCreate {
 	return jc
 }
 
-// SetJobID sets the job edge to Patient by id.
-func (jc *JobCreate) SetJobID(id int) *JobCreate {
-	jc.mutation.SetJobID(id)
+// AddJobIDs adds the jobs edge to Patient by ids.
+func (jc *JobCreate) AddJobIDs(ids ...int) *JobCreate {
+	jc.mutation.AddJobIDs(ids...)
 	return jc
 }
 
-// SetNillableJobID sets the job edge to Patient by id if the given value is not nil.
-func (jc *JobCreate) SetNillableJobID(id *int) *JobCreate {
-	if id != nil {
-		jc = jc.SetJobID(*id)
+// AddJobs adds the jobs edges to Patient.
+func (jc *JobCreate) AddJobs(p ...*Patient) *JobCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return jc
-}
-
-// SetJob sets the job edge to Patient.
-func (jc *JobCreate) SetJob(p *Patient) *JobCreate {
-	return jc.SetJobID(p.ID)
+	return jc.AddJobIDs(ids...)
 }
 
 // Mutation returns the JobMutation object of the builder.
@@ -128,12 +124,12 @@ func (jc *JobCreate) createSpec() (*Job, *sqlgraph.CreateSpec) {
 		})
 		j.JobName = value
 	}
-	if nodes := jc.mutation.JobIDs(); len(nodes) > 0 {
+	if nodes := jc.mutation.JobsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   job.JobTable,
-			Columns: []string{job.JobColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   job.JobsTable,
+			Columns: []string{job.JobsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

@@ -8,7 +8,6 @@ import (
 
 	"github.com/facebookincubator/ent/dialect/sql"
 	"github.com/panupong/app/ent/gender"
-	"github.com/panupong/app/ent/patient"
 )
 
 // Gender is the model entity for the Gender schema.
@@ -20,31 +19,25 @@ type Gender struct {
 	GenderType string `json:"Gender_type,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GenderQuery when eager-loading is set.
-	Edges           GenderEdges `json:"edges"`
-	patient_genders *int
+	Edges GenderEdges `json:"edges"`
 }
 
 // GenderEdges holds the relations/edges for other nodes in the graph.
 type GenderEdges struct {
-	// Gen holds the value of the gen edge.
-	Gen *Patient
+	// Genders holds the value of the genders edge.
+	Genders []*Patient
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// GenOrErr returns the Gen value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e GenderEdges) GenOrErr() (*Patient, error) {
+// GendersOrErr returns the Genders value or an error if the edge
+// was not loaded in eager-loading.
+func (e GenderEdges) GendersOrErr() ([]*Patient, error) {
 	if e.loadedTypes[0] {
-		if e.Gen == nil {
-			// The edge gen was loaded in eager-loading,
-			// but was not found.
-			return nil, &NotFoundError{label: patient.Label}
-		}
-		return e.Gen, nil
+		return e.Genders, nil
 	}
-	return nil, &NotLoadedError{edge: "gen"}
+	return nil, &NotLoadedError{edge: "genders"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -52,13 +45,6 @@ func (*Gender) scanValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{},  // id
 		&sql.NullString{}, // Gender_type
-	}
-}
-
-// fkValues returns the types for scanning foreign-keys values from sql.Rows.
-func (*Gender) fkValues() []interface{} {
-	return []interface{}{
-		&sql.NullInt64{}, // patient_genders
 	}
 }
 
@@ -79,21 +65,12 @@ func (ge *Gender) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		ge.GenderType = value.String
 	}
-	values = values[1:]
-	if len(values) == len(gender.ForeignKeys) {
-		if value, ok := values[0].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field patient_genders", value)
-		} else if value.Valid {
-			ge.patient_genders = new(int)
-			*ge.patient_genders = int(value.Int64)
-		}
-	}
 	return nil
 }
 
-// QueryGen queries the gen edge of the Gender.
-func (ge *Gender) QueryGen() *PatientQuery {
-	return (&GenderClient{config: ge.config}).QueryGen(ge)
+// QueryGenders queries the genders edge of the Gender.
+func (ge *Gender) QueryGenders() *PatientQuery {
+	return (&GenderClient{config: ge.config}).QueryGenders(ge)
 }
 
 // Update returns a builder for updating this Gender.

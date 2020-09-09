@@ -26,23 +26,19 @@ func (gc *GenderCreate) SetGenderType(s string) *GenderCreate {
 	return gc
 }
 
-// SetGenID sets the gen edge to Patient by id.
-func (gc *GenderCreate) SetGenID(id int) *GenderCreate {
-	gc.mutation.SetGenID(id)
+// AddGenderIDs adds the genders edge to Patient by ids.
+func (gc *GenderCreate) AddGenderIDs(ids ...int) *GenderCreate {
+	gc.mutation.AddGenderIDs(ids...)
 	return gc
 }
 
-// SetNillableGenID sets the gen edge to Patient by id if the given value is not nil.
-func (gc *GenderCreate) SetNillableGenID(id *int) *GenderCreate {
-	if id != nil {
-		gc = gc.SetGenID(*id)
+// AddGenders adds the genders edges to Patient.
+func (gc *GenderCreate) AddGenders(p ...*Patient) *GenderCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return gc
-}
-
-// SetGen sets the gen edge to Patient.
-func (gc *GenderCreate) SetGen(p *Patient) *GenderCreate {
-	return gc.SetGenID(p.ID)
+	return gc.AddGenderIDs(ids...)
 }
 
 // Mutation returns the GenderMutation object of the builder.
@@ -128,12 +124,12 @@ func (gc *GenderCreate) createSpec() (*Gender, *sqlgraph.CreateSpec) {
 		})
 		ge.GenderType = value
 	}
-	if nodes := gc.mutation.GenIDs(); len(nodes) > 0 {
+	if nodes := gc.mutation.GendersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   gender.GenTable,
-			Columns: []string{gender.GenColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   gender.GendersTable,
+			Columns: []string{gender.GendersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

@@ -10,29 +10,24 @@ const (
 	// FieldTitleType holds the string denoting the title_type field in the database.
 	FieldTitleType = "title_type"
 
-	// EdgeTitle holds the string denoting the title edge name in mutations.
-	EdgeTitle = "title"
+	// EdgeTitles holds the string denoting the titles edge name in mutations.
+	EdgeTitles = "titles"
 
 	// Table holds the table name of the title in the database.
 	Table = "titles"
-	// TitleTable is the table the holds the title relation/edge.
-	TitleTable = "titles"
-	// TitleInverseTable is the table name for the Patient entity.
+	// TitlesTable is the table the holds the titles relation/edge.
+	TitlesTable = "patients"
+	// TitlesInverseTable is the table name for the Patient entity.
 	// It exists in this package in order to avoid circular dependency with the "patient" package.
-	TitleInverseTable = "patients"
-	// TitleColumn is the table column denoting the title relation/edge.
-	TitleColumn = "patient_titles"
+	TitlesInverseTable = "patients"
+	// TitlesColumn is the table column denoting the titles relation/edge.
+	TitlesColumn = "title_titles"
 )
 
 // Columns holds all SQL columns for title fields.
 var Columns = []string{
 	FieldID,
 	FieldTitleType,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the Title type.
-var ForeignKeys = []string{
-	"patient_titles",
 }
 
 var (

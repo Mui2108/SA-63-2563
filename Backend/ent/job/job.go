@@ -10,29 +10,24 @@ const (
 	// FieldJobName holds the string denoting the job_name field in the database.
 	FieldJobName = "job_name"
 
-	// EdgeJob holds the string denoting the job edge name in mutations.
-	EdgeJob = "job"
+	// EdgeJobs holds the string denoting the jobs edge name in mutations.
+	EdgeJobs = "jobs"
 
 	// Table holds the table name of the job in the database.
 	Table = "jobs"
-	// JobTable is the table the holds the job relation/edge.
-	JobTable = "jobs"
-	// JobInverseTable is the table name for the Patient entity.
+	// JobsTable is the table the holds the jobs relation/edge.
+	JobsTable = "patients"
+	// JobsInverseTable is the table name for the Patient entity.
 	// It exists in this package in order to avoid circular dependency with the "patient" package.
-	JobInverseTable = "patients"
-	// JobColumn is the table column denoting the job relation/edge.
-	JobColumn = "patient_jobs"
+	JobsInverseTable = "patients"
+	// JobsColumn is the table column denoting the jobs relation/edge.
+	JobsColumn = "job_jobs"
 )
 
 // Columns holds all SQL columns for job fields.
 var Columns = []string{
 	FieldID,
 	FieldJobName,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the Job type.
-var ForeignKeys = []string{
-	"patient_jobs",
 }
 
 var (

@@ -26,23 +26,19 @@ func (tc *TitleCreate) SetTitleType(s string) *TitleCreate {
 	return tc
 }
 
-// SetTitleID sets the title edge to Patient by id.
-func (tc *TitleCreate) SetTitleID(id int) *TitleCreate {
-	tc.mutation.SetTitleID(id)
+// AddTitleIDs adds the titles edge to Patient by ids.
+func (tc *TitleCreate) AddTitleIDs(ids ...int) *TitleCreate {
+	tc.mutation.AddTitleIDs(ids...)
 	return tc
 }
 
-// SetNillableTitleID sets the title edge to Patient by id if the given value is not nil.
-func (tc *TitleCreate) SetNillableTitleID(id *int) *TitleCreate {
-	if id != nil {
-		tc = tc.SetTitleID(*id)
+// AddTitles adds the titles edges to Patient.
+func (tc *TitleCreate) AddTitles(p ...*Patient) *TitleCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return tc
-}
-
-// SetTitle sets the title edge to Patient.
-func (tc *TitleCreate) SetTitle(p *Patient) *TitleCreate {
-	return tc.SetTitleID(p.ID)
+	return tc.AddTitleIDs(ids...)
 }
 
 // Mutation returns the TitleMutation object of the builder.
@@ -128,12 +124,12 @@ func (tc *TitleCreate) createSpec() (*Title, *sqlgraph.CreateSpec) {
 		})
 		t.TitleType = value
 	}
-	if nodes := tc.mutation.TitleIDs(); len(nodes) > 0 {
+	if nodes := tc.mutation.TitlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   title.TitleTable,
-			Columns: []string{title.TitleColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   title.TitlesTable,
+			Columns: []string{title.TitlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

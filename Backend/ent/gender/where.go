@@ -209,25 +209,25 @@ func GenderTypeContainsFold(v string) predicate.Gender {
 	})
 }
 
-// HasGen applies the HasEdge predicate on the "gen" edge.
-func HasGen() predicate.Gender {
+// HasGenders applies the HasEdge predicate on the "genders" edge.
+func HasGenders() predicate.Gender {
 	return predicate.Gender(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(GenTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, GenTable, GenColumn),
+			sqlgraph.To(GendersTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, GendersTable, GendersColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasGenWith applies the HasEdge predicate on the "gen" edge with a given conditions (other predicates).
-func HasGenWith(preds ...predicate.Patient) predicate.Gender {
+// HasGendersWith applies the HasEdge predicate on the "genders" edge with a given conditions (other predicates).
+func HasGendersWith(preds ...predicate.Patient) predicate.Gender {
 	return predicate.Gender(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(GenInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, GenTable, GenColumn),
+			sqlgraph.To(GendersInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, GendersTable, GendersColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

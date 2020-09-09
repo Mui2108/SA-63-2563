@@ -7,7 +7,10 @@ import (
 	"strings"
 
 	"github.com/facebookincubator/ent/dialect/sql"
+	"github.com/panupong/app/ent/gender"
+	"github.com/panupong/app/ent/job"
 	"github.com/panupong/app/ent/patient"
+	"github.com/panupong/app/ent/title"
 )
 
 // Patient is the model entity for the Patient schema.
@@ -27,47 +30,65 @@ type Patient struct {
 	Age int `json:"age,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PatientQuery when eager-loading is set.
-	Edges PatientEdges `json:"edges"`
+	Edges          PatientEdges `json:"edges"`
+	gender_genders *int
+	job_jobs       *int
+	title_titles   *int
 }
 
 // PatientEdges holds the relations/edges for other nodes in the graph.
 type PatientEdges struct {
-	// Genders holds the value of the genders edge.
-	Genders []*Gender
-	// Titles holds the value of the titles edge.
-	Titles []*Title
-	// Jobs holds the value of the jobs edge.
-	Jobs []*Job
+	// Patients holds the value of the patients edge.
+	Patients *Gender
+	// Patients holds the value of the patients edge.
+	Patients *Title
+	// Patients holds the value of the patients edge.
+	Patients *Job
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
 }
 
-// GendersOrErr returns the Genders value or an error if the edge
-// was not loaded in eager-loading.
-func (e PatientEdges) GendersOrErr() ([]*Gender, error) {
+// PatientsOrErr returns the Patients value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e PatientEdges) PatientsOrErr() (*Gender, error) {
 	if e.loadedTypes[0] {
-		return e.Genders, nil
+		if e.Patients == nil {
+			// The edge patients was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: gender.Label}
+		}
+		return e.Patients, nil
 	}
-	return nil, &NotLoadedError{edge: "genders"}
+	return nil, &NotLoadedError{edge: "patients"}
 }
 
-// TitlesOrErr returns the Titles value or an error if the edge
-// was not loaded in eager-loading.
-func (e PatientEdges) TitlesOrErr() ([]*Title, error) {
+// PatientsOrErr returns the Patients value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e PatientEdges) PatientsOrErr() (*Title, error) {
 	if e.loadedTypes[1] {
-		return e.Titles, nil
+		if e.Patients == nil {
+			// The edge patients was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: title.Label}
+		}
+		return e.Patients, nil
 	}
-	return nil, &NotLoadedError{edge: "titles"}
+	return nil, &NotLoadedError{edge: "patients"}
 }
 
-// JobsOrErr returns the Jobs value or an error if the edge
-// was not loaded in eager-loading.
-func (e PatientEdges) JobsOrErr() ([]*Job, error) {
+// PatientsOrErr returns the Patients value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e PatientEdges) PatientsOrErr() (*Job, error) {
 	if e.loadedTypes[2] {
-		return e.Jobs, nil
+		if e.Patients == nil {
+			// The edge patients was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: job.Label}
+		}
+		return e.Patients, nil
 	}
-	return nil, &NotLoadedError{edge: "jobs"}
+	return nil, &NotLoadedError{edge: "patients"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -79,6 +100,15 @@ func (*Patient) scanValues() []interface{} {
 		&sql.NullString{}, // Last_name
 		&sql.NullString{}, // Allergic
 		&sql.NullInt64{},  // age
+	}
+}
+
+// fkValues returns the types for scanning foreign-keys values from sql.Rows.
+func (*Patient) fkValues() []interface{} {
+	return []interface{}{
+		&sql.NullInt64{}, // gender_genders
+		&sql.NullInt64{}, // job_jobs
+		&sql.NullInt64{}, // title_titles
 	}
 }
 
@@ -119,22 +149,43 @@ func (pa *Patient) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		pa.Age = int(value.Int64)
 	}
+	values = values[5:]
+	if len(values) == len(patient.ForeignKeys) {
+		if value, ok := values[0].(*sql.NullInt64); !ok {
+			return fmt.Errorf("unexpected type %T for edge-field gender_genders", value)
+		} else if value.Valid {
+			pa.gender_genders = new(int)
+			*pa.gender_genders = int(value.Int64)
+		}
+		if value, ok := values[1].(*sql.NullInt64); !ok {
+			return fmt.Errorf("unexpected type %T for edge-field job_jobs", value)
+		} else if value.Valid {
+			pa.job_jobs = new(int)
+			*pa.job_jobs = int(value.Int64)
+		}
+		if value, ok := values[2].(*sql.NullInt64); !ok {
+			return fmt.Errorf("unexpected type %T for edge-field title_titles", value)
+		} else if value.Valid {
+			pa.title_titles = new(int)
+			*pa.title_titles = int(value.Int64)
+		}
+	}
 	return nil
 }
 
-// QueryGenders queries the genders edge of the Patient.
-func (pa *Patient) QueryGenders() *GenderQuery {
-	return (&PatientClient{config: pa.config}).QueryGenders(pa)
+// QueryPatients queries the patients edge of the Patient.
+func (pa *Patient) QueryPatients() *GenderQuery {
+	return (&PatientClient{config: pa.config}).QueryPatients(pa)
 }
 
-// QueryTitles queries the titles edge of the Patient.
-func (pa *Patient) QueryTitles() *TitleQuery {
-	return (&PatientClient{config: pa.config}).QueryTitles(pa)
+// QueryPatients queries the patients edge of the Patient.
+func (pa *Patient) QueryPatients() *TitleQuery {
+	return (&PatientClient{config: pa.config}).QueryPatients(pa)
 }
 
-// QueryJobs queries the jobs edge of the Patient.
-func (pa *Patient) QueryJobs() *JobQuery {
-	return (&PatientClient{config: pa.config}).QueryJobs(pa)
+// QueryPatients queries the patients edge of the Patient.
+func (pa *Patient) QueryPatients() *JobQuery {
+	return (&PatientClient{config: pa.config}).QueryPatients(pa)
 }
 
 // Update returns a builder for updating this Patient.

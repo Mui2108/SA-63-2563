@@ -34,23 +34,19 @@ func (gu *GenderUpdate) SetGenderType(s string) *GenderUpdate {
 	return gu
 }
 
-// SetGenID sets the gen edge to Patient by id.
-func (gu *GenderUpdate) SetGenID(id int) *GenderUpdate {
-	gu.mutation.SetGenID(id)
+// AddGenderIDs adds the genders edge to Patient by ids.
+func (gu *GenderUpdate) AddGenderIDs(ids ...int) *GenderUpdate {
+	gu.mutation.AddGenderIDs(ids...)
 	return gu
 }
 
-// SetNillableGenID sets the gen edge to Patient by id if the given value is not nil.
-func (gu *GenderUpdate) SetNillableGenID(id *int) *GenderUpdate {
-	if id != nil {
-		gu = gu.SetGenID(*id)
+// AddGenders adds the genders edges to Patient.
+func (gu *GenderUpdate) AddGenders(p ...*Patient) *GenderUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return gu
-}
-
-// SetGen sets the gen edge to Patient.
-func (gu *GenderUpdate) SetGen(p *Patient) *GenderUpdate {
-	return gu.SetGenID(p.ID)
+	return gu.AddGenderIDs(ids...)
 }
 
 // Mutation returns the GenderMutation object of the builder.
@@ -58,10 +54,19 @@ func (gu *GenderUpdate) Mutation() *GenderMutation {
 	return gu.mutation
 }
 
-// ClearGen clears the gen edge to Patient.
-func (gu *GenderUpdate) ClearGen() *GenderUpdate {
-	gu.mutation.ClearGen()
+// RemoveGenderIDs removes the genders edge to Patient by ids.
+func (gu *GenderUpdate) RemoveGenderIDs(ids ...int) *GenderUpdate {
+	gu.mutation.RemoveGenderIDs(ids...)
 	return gu
+}
+
+// RemoveGenders removes genders edges to Patient.
+func (gu *GenderUpdate) RemoveGenders(p ...*Patient) *GenderUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return gu.RemoveGenderIDs(ids...)
 }
 
 // Save executes the query and returns the number of rows/vertices matched by this operation.
@@ -146,12 +151,12 @@ func (gu *GenderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: gender.FieldGenderType,
 		})
 	}
-	if gu.mutation.GenCleared() {
+	if nodes := gu.mutation.RemovedGendersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   gender.GenTable,
-			Columns: []string{gender.GenColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   gender.GendersTable,
+			Columns: []string{gender.GendersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -160,14 +165,17 @@ func (gu *GenderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				},
 			},
 		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := gu.mutation.GenIDs(); len(nodes) > 0 {
+	if nodes := gu.mutation.GendersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   gender.GenTable,
-			Columns: []string{gender.GenColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   gender.GendersTable,
+			Columns: []string{gender.GendersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -205,23 +213,19 @@ func (guo *GenderUpdateOne) SetGenderType(s string) *GenderUpdateOne {
 	return guo
 }
 
-// SetGenID sets the gen edge to Patient by id.
-func (guo *GenderUpdateOne) SetGenID(id int) *GenderUpdateOne {
-	guo.mutation.SetGenID(id)
+// AddGenderIDs adds the genders edge to Patient by ids.
+func (guo *GenderUpdateOne) AddGenderIDs(ids ...int) *GenderUpdateOne {
+	guo.mutation.AddGenderIDs(ids...)
 	return guo
 }
 
-// SetNillableGenID sets the gen edge to Patient by id if the given value is not nil.
-func (guo *GenderUpdateOne) SetNillableGenID(id *int) *GenderUpdateOne {
-	if id != nil {
-		guo = guo.SetGenID(*id)
+// AddGenders adds the genders edges to Patient.
+func (guo *GenderUpdateOne) AddGenders(p ...*Patient) *GenderUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return guo
-}
-
-// SetGen sets the gen edge to Patient.
-func (guo *GenderUpdateOne) SetGen(p *Patient) *GenderUpdateOne {
-	return guo.SetGenID(p.ID)
+	return guo.AddGenderIDs(ids...)
 }
 
 // Mutation returns the GenderMutation object of the builder.
@@ -229,10 +233,19 @@ func (guo *GenderUpdateOne) Mutation() *GenderMutation {
 	return guo.mutation
 }
 
-// ClearGen clears the gen edge to Patient.
-func (guo *GenderUpdateOne) ClearGen() *GenderUpdateOne {
-	guo.mutation.ClearGen()
+// RemoveGenderIDs removes the genders edge to Patient by ids.
+func (guo *GenderUpdateOne) RemoveGenderIDs(ids ...int) *GenderUpdateOne {
+	guo.mutation.RemoveGenderIDs(ids...)
 	return guo
+}
+
+// RemoveGenders removes genders edges to Patient.
+func (guo *GenderUpdateOne) RemoveGenders(p ...*Patient) *GenderUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return guo.RemoveGenderIDs(ids...)
 }
 
 // Save executes the query and returns the updated entity.
@@ -315,12 +328,12 @@ func (guo *GenderUpdateOne) sqlSave(ctx context.Context) (ge *Gender, err error)
 			Column: gender.FieldGenderType,
 		})
 	}
-	if guo.mutation.GenCleared() {
+	if nodes := guo.mutation.RemovedGendersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   gender.GenTable,
-			Columns: []string{gender.GenColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   gender.GendersTable,
+			Columns: []string{gender.GendersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -329,14 +342,17 @@ func (guo *GenderUpdateOne) sqlSave(ctx context.Context) (ge *Gender, err error)
 				},
 			},
 		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := guo.mutation.GenIDs(); len(nodes) > 0 {
+	if nodes := guo.mutation.GendersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   gender.GenTable,
-			Columns: []string{gender.GenColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   gender.GendersTable,
+			Columns: []string{gender.GendersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

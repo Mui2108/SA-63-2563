@@ -209,25 +209,25 @@ func TitleTypeContainsFold(v string) predicate.Title {
 	})
 }
 
-// HasTitle applies the HasEdge predicate on the "title" edge.
-func HasTitle() predicate.Title {
+// HasTitles applies the HasEdge predicate on the "titles" edge.
+func HasTitles() predicate.Title {
 	return predicate.Title(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(TitleTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, TitleTable, TitleColumn),
+			sqlgraph.To(TitlesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TitlesTable, TitlesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasTitleWith applies the HasEdge predicate on the "title" edge with a given conditions (other predicates).
-func HasTitleWith(preds ...predicate.Patient) predicate.Title {
+// HasTitlesWith applies the HasEdge predicate on the "titles" edge with a given conditions (other predicates).
+func HasTitlesWith(preds ...predicate.Patient) predicate.Title {
 	return predicate.Title(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(TitleInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, TitleTable, TitleColumn),
+			sqlgraph.To(TitlesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TitlesTable, TitlesColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

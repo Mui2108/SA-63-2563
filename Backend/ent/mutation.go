@@ -34,15 +34,15 @@ const (
 // nodes in the graph.
 type GenderMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	_Gender_type  *string
-	clearedFields map[string]struct{}
-	gen           *int
-	clearedgen    bool
-	done          bool
-	oldValue      func(context.Context) (*Gender, error)
+	op             Op
+	typ            string
+	id             *int
+	_Gender_type   *string
+	clearedFields  map[string]struct{}
+	genders        map[int]struct{}
+	removedgenders map[int]struct{}
+	done           bool
+	oldValue       func(context.Context) (*Gender, error)
 }
 
 var _ ent.Mutation = (*GenderMutation)(nil)
@@ -161,43 +161,46 @@ func (m *GenderMutation) ResetGenderType() {
 	m._Gender_type = nil
 }
 
-// SetGenID sets the gen edge to Patient by id.
-func (m *GenderMutation) SetGenID(id int) {
-	m.gen = &id
+// AddGenderIDs adds the genders edge to Patient by ids.
+func (m *GenderMutation) AddGenderIDs(ids ...int) {
+	if m.genders == nil {
+		m.genders = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.genders[ids[i]] = struct{}{}
+	}
 }
 
-// ClearGen clears the gen edge to Patient.
-func (m *GenderMutation) ClearGen() {
-	m.clearedgen = true
+// RemoveGenderIDs removes the genders edge to Patient by ids.
+func (m *GenderMutation) RemoveGenderIDs(ids ...int) {
+	if m.removedgenders == nil {
+		m.removedgenders = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedgenders[ids[i]] = struct{}{}
+	}
 }
 
-// GenCleared returns if the edge gen was cleared.
-func (m *GenderMutation) GenCleared() bool {
-	return m.clearedgen
-}
-
-// GenID returns the gen id in the mutation.
-func (m *GenderMutation) GenID() (id int, exists bool) {
-	if m.gen != nil {
-		return *m.gen, true
+// RemovedGenders returns the removed ids of genders.
+func (m *GenderMutation) RemovedGendersIDs() (ids []int) {
+	for id := range m.removedgenders {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// GenIDs returns the gen ids in the mutation.
-// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
-// GenID instead. It exists only for internal usage by the builders.
-func (m *GenderMutation) GenIDs() (ids []int) {
-	if id := m.gen; id != nil {
-		ids = append(ids, *id)
+// GendersIDs returns the genders ids in the mutation.
+func (m *GenderMutation) GendersIDs() (ids []int) {
+	for id := range m.genders {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetGen reset all changes of the "gen" edge.
-func (m *GenderMutation) ResetGen() {
-	m.gen = nil
-	m.clearedgen = false
+// ResetGenders reset all changes of the "genders" edge.
+func (m *GenderMutation) ResetGenders() {
+	m.genders = nil
+	m.removedgenders = nil
 }
 
 // Op returns the operation name.
@@ -316,8 +319,8 @@ func (m *GenderMutation) ResetField(name string) error {
 // mutation.
 func (m *GenderMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.gen != nil {
-		edges = append(edges, gender.EdgeGen)
+	if m.genders != nil {
+		edges = append(edges, gender.EdgeGenders)
 	}
 	return edges
 }
@@ -326,10 +329,12 @@ func (m *GenderMutation) AddedEdges() []string {
 // the given edge name.
 func (m *GenderMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case gender.EdgeGen:
-		if id := m.gen; id != nil {
-			return []ent.Value{*id}
+	case gender.EdgeGenders:
+		ids := make([]ent.Value, 0, len(m.genders))
+		for id := range m.genders {
+			ids = append(ids, id)
 		}
+		return ids
 	}
 	return nil
 }
@@ -338,6 +343,9 @@ func (m *GenderMutation) AddedIDs(name string) []ent.Value {
 // mutation.
 func (m *GenderMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
+	if m.removedgenders != nil {
+		edges = append(edges, gender.EdgeGenders)
+	}
 	return edges
 }
 
@@ -345,6 +353,12 @@ func (m *GenderMutation) RemovedEdges() []string {
 // the given edge name.
 func (m *GenderMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case gender.EdgeGenders:
+		ids := make([]ent.Value, 0, len(m.removedgenders))
+		for id := range m.removedgenders {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -353,9 +367,6 @@ func (m *GenderMutation) RemovedIDs(name string) []ent.Value {
 // mutation.
 func (m *GenderMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.clearedgen {
-		edges = append(edges, gender.EdgeGen)
-	}
 	return edges
 }
 
@@ -363,8 +374,6 @@ func (m *GenderMutation) ClearedEdges() []string {
 // cleared in this mutation.
 func (m *GenderMutation) EdgeCleared(name string) bool {
 	switch name {
-	case gender.EdgeGen:
-		return m.clearedgen
 	}
 	return false
 }
@@ -373,9 +382,6 @@ func (m *GenderMutation) EdgeCleared(name string) bool {
 // error if the edge name is not defined in the schema.
 func (m *GenderMutation) ClearEdge(name string) error {
 	switch name {
-	case gender.EdgeGen:
-		m.ClearGen()
-		return nil
 	}
 	return fmt.Errorf("unknown Gender unique edge %s", name)
 }
@@ -385,8 +391,8 @@ func (m *GenderMutation) ClearEdge(name string) error {
 // defined in the schema.
 func (m *GenderMutation) ResetEdge(name string) error {
 	switch name {
-	case gender.EdgeGen:
-		m.ResetGen()
+	case gender.EdgeGenders:
+		m.ResetGenders()
 		return nil
 	}
 	return fmt.Errorf("unknown Gender edge %s", name)
@@ -401,8 +407,8 @@ type JobMutation struct {
 	id            *int
 	_Job_name     *string
 	clearedFields map[string]struct{}
-	job           *int
-	clearedjob    bool
+	jobs          map[int]struct{}
+	removedjobs   map[int]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Job, error)
 }
@@ -523,43 +529,46 @@ func (m *JobMutation) ResetJobName() {
 	m._Job_name = nil
 }
 
-// SetJobID sets the job edge to Patient by id.
-func (m *JobMutation) SetJobID(id int) {
-	m.job = &id
+// AddJobIDs adds the jobs edge to Patient by ids.
+func (m *JobMutation) AddJobIDs(ids ...int) {
+	if m.jobs == nil {
+		m.jobs = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.jobs[ids[i]] = struct{}{}
+	}
 }
 
-// ClearJob clears the job edge to Patient.
-func (m *JobMutation) ClearJob() {
-	m.clearedjob = true
+// RemoveJobIDs removes the jobs edge to Patient by ids.
+func (m *JobMutation) RemoveJobIDs(ids ...int) {
+	if m.removedjobs == nil {
+		m.removedjobs = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedjobs[ids[i]] = struct{}{}
+	}
 }
 
-// JobCleared returns if the edge job was cleared.
-func (m *JobMutation) JobCleared() bool {
-	return m.clearedjob
-}
-
-// JobID returns the job id in the mutation.
-func (m *JobMutation) JobID() (id int, exists bool) {
-	if m.job != nil {
-		return *m.job, true
+// RemovedJobs returns the removed ids of jobs.
+func (m *JobMutation) RemovedJobsIDs() (ids []int) {
+	for id := range m.removedjobs {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// JobIDs returns the job ids in the mutation.
-// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
-// JobID instead. It exists only for internal usage by the builders.
-func (m *JobMutation) JobIDs() (ids []int) {
-	if id := m.job; id != nil {
-		ids = append(ids, *id)
+// JobsIDs returns the jobs ids in the mutation.
+func (m *JobMutation) JobsIDs() (ids []int) {
+	for id := range m.jobs {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetJob reset all changes of the "job" edge.
-func (m *JobMutation) ResetJob() {
-	m.job = nil
-	m.clearedjob = false
+// ResetJobs reset all changes of the "jobs" edge.
+func (m *JobMutation) ResetJobs() {
+	m.jobs = nil
+	m.removedjobs = nil
 }
 
 // Op returns the operation name.
@@ -678,8 +687,8 @@ func (m *JobMutation) ResetField(name string) error {
 // mutation.
 func (m *JobMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.job != nil {
-		edges = append(edges, job.EdgeJob)
+	if m.jobs != nil {
+		edges = append(edges, job.EdgeJobs)
 	}
 	return edges
 }
@@ -688,10 +697,12 @@ func (m *JobMutation) AddedEdges() []string {
 // the given edge name.
 func (m *JobMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case job.EdgeJob:
-		if id := m.job; id != nil {
-			return []ent.Value{*id}
+	case job.EdgeJobs:
+		ids := make([]ent.Value, 0, len(m.jobs))
+		for id := range m.jobs {
+			ids = append(ids, id)
 		}
+		return ids
 	}
 	return nil
 }
@@ -700,6 +711,9 @@ func (m *JobMutation) AddedIDs(name string) []ent.Value {
 // mutation.
 func (m *JobMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
+	if m.removedjobs != nil {
+		edges = append(edges, job.EdgeJobs)
+	}
 	return edges
 }
 
@@ -707,6 +721,12 @@ func (m *JobMutation) RemovedEdges() []string {
 // the given edge name.
 func (m *JobMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case job.EdgeJobs:
+		ids := make([]ent.Value, 0, len(m.removedjobs))
+		for id := range m.removedjobs {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -715,9 +735,6 @@ func (m *JobMutation) RemovedIDs(name string) []ent.Value {
 // mutation.
 func (m *JobMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.clearedjob {
-		edges = append(edges, job.EdgeJob)
-	}
 	return edges
 }
 
@@ -725,8 +742,6 @@ func (m *JobMutation) ClearedEdges() []string {
 // cleared in this mutation.
 func (m *JobMutation) EdgeCleared(name string) bool {
 	switch name {
-	case job.EdgeJob:
-		return m.clearedjob
 	}
 	return false
 }
@@ -735,9 +750,6 @@ func (m *JobMutation) EdgeCleared(name string) bool {
 // error if the edge name is not defined in the schema.
 func (m *JobMutation) ClearEdge(name string) error {
 	switch name {
-	case job.EdgeJob:
-		m.ClearJob()
-		return nil
 	}
 	return fmt.Errorf("unknown Job unique edge %s", name)
 }
@@ -747,8 +759,8 @@ func (m *JobMutation) ClearEdge(name string) error {
 // defined in the schema.
 func (m *JobMutation) ResetEdge(name string) error {
 	switch name {
-	case job.EdgeJob:
-		m.ResetJob()
+	case job.EdgeJobs:
+		m.ResetJobs()
 		return nil
 	}
 	return fmt.Errorf("unknown Job edge %s", name)
@@ -758,24 +770,24 @@ func (m *JobMutation) ResetEdge(name string) error {
 // nodes in the graph.
 type PatientMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *int
-	_Card_id       *string
-	_Fist_name     *string
-	_Last_name     *string
-	_Allergic      *string
-	age            *int
-	addage         *int
-	clearedFields  map[string]struct{}
-	genders        map[int]struct{}
-	removedgenders map[int]struct{}
-	titles         map[int]struct{}
-	removedtitles  map[int]struct{}
-	jobs           map[int]struct{}
-	removedjobs    map[int]struct{}
-	done           bool
-	oldValue       func(context.Context) (*Patient, error)
+	op              Op
+	typ             string
+	id              *int
+	_Card_id        *string
+	_Fist_name      *string
+	_Last_name      *string
+	_Allergic       *string
+	age             *int
+	addage          *int
+	clearedFields   map[string]struct{}
+	patients        *int
+	clearedpatients bool
+	patients        *int
+	clearedpatients bool
+	patients        *int
+	clearedpatients bool
+	done            bool
+	oldValue        func(context.Context) (*Patient, error)
 }
 
 var _ ent.Mutation = (*PatientMutation)(nil)
@@ -1062,130 +1074,121 @@ func (m *PatientMutation) ResetAge() {
 	m.addage = nil
 }
 
-// AddGenderIDs adds the genders edge to Gender by ids.
-func (m *PatientMutation) AddGenderIDs(ids ...int) {
-	if m.genders == nil {
-		m.genders = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.genders[ids[i]] = struct{}{}
-	}
+// SetPatientsID sets the patients edge to Gender by id.
+func (m *PatientMutation) SetPatientsID(id int) {
+	m.patients = &id
 }
 
-// RemoveGenderIDs removes the genders edge to Gender by ids.
-func (m *PatientMutation) RemoveGenderIDs(ids ...int) {
-	if m.removedgenders == nil {
-		m.removedgenders = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.removedgenders[ids[i]] = struct{}{}
-	}
+// ClearPatients clears the patients edge to Gender.
+func (m *PatientMutation) ClearPatients() {
+	m.clearedpatients = true
 }
 
-// RemovedGenders returns the removed ids of genders.
-func (m *PatientMutation) RemovedGendersIDs() (ids []int) {
-	for id := range m.removedgenders {
-		ids = append(ids, id)
+// PatientsCleared returns if the edge patients was cleared.
+func (m *PatientMutation) PatientsCleared() bool {
+	return m.clearedpatients
+}
+
+// PatientsID returns the patients id in the mutation.
+func (m *PatientMutation) PatientsID() (id int, exists bool) {
+	if m.patients != nil {
+		return *m.patients, true
 	}
 	return
 }
 
-// GendersIDs returns the genders ids in the mutation.
-func (m *PatientMutation) GendersIDs() (ids []int) {
-	for id := range m.genders {
-		ids = append(ids, id)
+// PatientsIDs returns the patients ids in the mutation.
+// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
+// PatientsID instead. It exists only for internal usage by the builders.
+func (m *PatientMutation) PatientsIDs() (ids []int) {
+	if id := m.patients; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetGenders reset all changes of the "genders" edge.
-func (m *PatientMutation) ResetGenders() {
-	m.genders = nil
-	m.removedgenders = nil
+// ResetPatients reset all changes of the "patients" edge.
+func (m *PatientMutation) ResetPatients() {
+	m.patients = nil
+	m.clearedpatients = false
 }
 
-// AddTitleIDs adds the titles edge to Title by ids.
-func (m *PatientMutation) AddTitleIDs(ids ...int) {
-	if m.titles == nil {
-		m.titles = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.titles[ids[i]] = struct{}{}
-	}
+// SetPatientsID sets the patients edge to Title by id.
+func (m *PatientMutation) SetPatientsID(id int) {
+	m.patients = &id
 }
 
-// RemoveTitleIDs removes the titles edge to Title by ids.
-func (m *PatientMutation) RemoveTitleIDs(ids ...int) {
-	if m.removedtitles == nil {
-		m.removedtitles = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.removedtitles[ids[i]] = struct{}{}
-	}
+// ClearPatients clears the patients edge to Title.
+func (m *PatientMutation) ClearPatients() {
+	m.clearedpatients = true
 }
 
-// RemovedTitles returns the removed ids of titles.
-func (m *PatientMutation) RemovedTitlesIDs() (ids []int) {
-	for id := range m.removedtitles {
-		ids = append(ids, id)
+// PatientsCleared returns if the edge patients was cleared.
+func (m *PatientMutation) PatientsCleared() bool {
+	return m.clearedpatients
+}
+
+// PatientsID returns the patients id in the mutation.
+func (m *PatientMutation) PatientsID() (id int, exists bool) {
+	if m.patients != nil {
+		return *m.patients, true
 	}
 	return
 }
 
-// TitlesIDs returns the titles ids in the mutation.
-func (m *PatientMutation) TitlesIDs() (ids []int) {
-	for id := range m.titles {
-		ids = append(ids, id)
+// PatientsIDs returns the patients ids in the mutation.
+// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
+// PatientsID instead. It exists only for internal usage by the builders.
+func (m *PatientMutation) PatientsIDs() (ids []int) {
+	if id := m.patients; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetTitles reset all changes of the "titles" edge.
-func (m *PatientMutation) ResetTitles() {
-	m.titles = nil
-	m.removedtitles = nil
+// ResetPatients reset all changes of the "patients" edge.
+func (m *PatientMutation) ResetPatients() {
+	m.patients = nil
+	m.clearedpatients = false
 }
 
-// AddJobIDs adds the jobs edge to Job by ids.
-func (m *PatientMutation) AddJobIDs(ids ...int) {
-	if m.jobs == nil {
-		m.jobs = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.jobs[ids[i]] = struct{}{}
-	}
+// SetPatientsID sets the patients edge to Job by id.
+func (m *PatientMutation) SetPatientsID(id int) {
+	m.patients = &id
 }
 
-// RemoveJobIDs removes the jobs edge to Job by ids.
-func (m *PatientMutation) RemoveJobIDs(ids ...int) {
-	if m.removedjobs == nil {
-		m.removedjobs = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.removedjobs[ids[i]] = struct{}{}
-	}
+// ClearPatients clears the patients edge to Job.
+func (m *PatientMutation) ClearPatients() {
+	m.clearedpatients = true
 }
 
-// RemovedJobs returns the removed ids of jobs.
-func (m *PatientMutation) RemovedJobsIDs() (ids []int) {
-	for id := range m.removedjobs {
-		ids = append(ids, id)
+// PatientsCleared returns if the edge patients was cleared.
+func (m *PatientMutation) PatientsCleared() bool {
+	return m.clearedpatients
+}
+
+// PatientsID returns the patients id in the mutation.
+func (m *PatientMutation) PatientsID() (id int, exists bool) {
+	if m.patients != nil {
+		return *m.patients, true
 	}
 	return
 }
 
-// JobsIDs returns the jobs ids in the mutation.
-func (m *PatientMutation) JobsIDs() (ids []int) {
-	for id := range m.jobs {
-		ids = append(ids, id)
+// PatientsIDs returns the patients ids in the mutation.
+// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
+// PatientsID instead. It exists only for internal usage by the builders.
+func (m *PatientMutation) PatientsIDs() (ids []int) {
+	if id := m.patients; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetJobs reset all changes of the "jobs" edge.
-func (m *PatientMutation) ResetJobs() {
-	m.jobs = nil
-	m.removedjobs = nil
+// ResetPatients reset all changes of the "patients" edge.
+func (m *PatientMutation) ResetPatients() {
+	m.patients = nil
+	m.clearedpatients = false
 }
 
 // Op returns the operation name.
@@ -1387,14 +1390,14 @@ func (m *PatientMutation) ResetField(name string) error {
 // mutation.
 func (m *PatientMutation) AddedEdges() []string {
 	edges := make([]string, 0, 3)
-	if m.genders != nil {
-		edges = append(edges, patient.EdgeGenders)
+	if m.patients != nil {
+		edges = append(edges, patient.EdgePatients)
 	}
-	if m.titles != nil {
-		edges = append(edges, patient.EdgeTitles)
+	if m.patients != nil {
+		edges = append(edges, patient.EdgePatients)
 	}
-	if m.jobs != nil {
-		edges = append(edges, patient.EdgeJobs)
+	if m.patients != nil {
+		edges = append(edges, patient.EdgePatients)
 	}
 	return edges
 }
@@ -1403,24 +1406,18 @@ func (m *PatientMutation) AddedEdges() []string {
 // the given edge name.
 func (m *PatientMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case patient.EdgeGenders:
-		ids := make([]ent.Value, 0, len(m.genders))
-		for id := range m.genders {
-			ids = append(ids, id)
+	case patient.EdgePatients:
+		if id := m.patients; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
-	case patient.EdgeTitles:
-		ids := make([]ent.Value, 0, len(m.titles))
-		for id := range m.titles {
-			ids = append(ids, id)
+	case patient.EdgePatients:
+		if id := m.patients; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
-	case patient.EdgeJobs:
-		ids := make([]ent.Value, 0, len(m.jobs))
-		for id := range m.jobs {
-			ids = append(ids, id)
+	case patient.EdgePatients:
+		if id := m.patients; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	}
 	return nil
 }
@@ -1429,15 +1426,6 @@ func (m *PatientMutation) AddedIDs(name string) []ent.Value {
 // mutation.
 func (m *PatientMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 3)
-	if m.removedgenders != nil {
-		edges = append(edges, patient.EdgeGenders)
-	}
-	if m.removedtitles != nil {
-		edges = append(edges, patient.EdgeTitles)
-	}
-	if m.removedjobs != nil {
-		edges = append(edges, patient.EdgeJobs)
-	}
 	return edges
 }
 
@@ -1445,24 +1433,6 @@ func (m *PatientMutation) RemovedEdges() []string {
 // the given edge name.
 func (m *PatientMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case patient.EdgeGenders:
-		ids := make([]ent.Value, 0, len(m.removedgenders))
-		for id := range m.removedgenders {
-			ids = append(ids, id)
-		}
-		return ids
-	case patient.EdgeTitles:
-		ids := make([]ent.Value, 0, len(m.removedtitles))
-		for id := range m.removedtitles {
-			ids = append(ids, id)
-		}
-		return ids
-	case patient.EdgeJobs:
-		ids := make([]ent.Value, 0, len(m.removedjobs))
-		for id := range m.removedjobs {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
@@ -1471,6 +1441,15 @@ func (m *PatientMutation) RemovedIDs(name string) []ent.Value {
 // mutation.
 func (m *PatientMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 3)
+	if m.clearedpatients {
+		edges = append(edges, patient.EdgePatients)
+	}
+	if m.clearedpatients {
+		edges = append(edges, patient.EdgePatients)
+	}
+	if m.clearedpatients {
+		edges = append(edges, patient.EdgePatients)
+	}
 	return edges
 }
 
@@ -1478,6 +1457,12 @@ func (m *PatientMutation) ClearedEdges() []string {
 // cleared in this mutation.
 func (m *PatientMutation) EdgeCleared(name string) bool {
 	switch name {
+	case patient.EdgePatients:
+		return m.clearedpatients
+	case patient.EdgePatients:
+		return m.clearedpatients
+	case patient.EdgePatients:
+		return m.clearedpatients
 	}
 	return false
 }
@@ -1486,6 +1471,15 @@ func (m *PatientMutation) EdgeCleared(name string) bool {
 // error if the edge name is not defined in the schema.
 func (m *PatientMutation) ClearEdge(name string) error {
 	switch name {
+	case patient.EdgePatients:
+		m.ClearPatients()
+		return nil
+	case patient.EdgePatients:
+		m.ClearPatients()
+		return nil
+	case patient.EdgePatients:
+		m.ClearPatients()
+		return nil
 	}
 	return fmt.Errorf("unknown Patient unique edge %s", name)
 }
@@ -1495,14 +1489,14 @@ func (m *PatientMutation) ClearEdge(name string) error {
 // defined in the schema.
 func (m *PatientMutation) ResetEdge(name string) error {
 	switch name {
-	case patient.EdgeGenders:
-		m.ResetGenders()
+	case patient.EdgePatients:
+		m.ResetPatients()
 		return nil
-	case patient.EdgeTitles:
-		m.ResetTitles()
+	case patient.EdgePatients:
+		m.ResetPatients()
 		return nil
-	case patient.EdgeJobs:
-		m.ResetJobs()
+	case patient.EdgePatients:
+		m.ResetPatients()
 		return nil
 	}
 	return fmt.Errorf("unknown Patient edge %s", name)
@@ -1517,8 +1511,8 @@ type TitleMutation struct {
 	id            *int
 	_Title_type   *string
 	clearedFields map[string]struct{}
-	title         *int
-	clearedtitle  bool
+	titles        map[int]struct{}
+	removedtitles map[int]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Title, error)
 }
@@ -1639,43 +1633,46 @@ func (m *TitleMutation) ResetTitleType() {
 	m._Title_type = nil
 }
 
-// SetTitleID sets the title edge to Patient by id.
-func (m *TitleMutation) SetTitleID(id int) {
-	m.title = &id
+// AddTitleIDs adds the titles edge to Patient by ids.
+func (m *TitleMutation) AddTitleIDs(ids ...int) {
+	if m.titles == nil {
+		m.titles = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.titles[ids[i]] = struct{}{}
+	}
 }
 
-// ClearTitle clears the title edge to Patient.
-func (m *TitleMutation) ClearTitle() {
-	m.clearedtitle = true
+// RemoveTitleIDs removes the titles edge to Patient by ids.
+func (m *TitleMutation) RemoveTitleIDs(ids ...int) {
+	if m.removedtitles == nil {
+		m.removedtitles = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedtitles[ids[i]] = struct{}{}
+	}
 }
 
-// TitleCleared returns if the edge title was cleared.
-func (m *TitleMutation) TitleCleared() bool {
-	return m.clearedtitle
-}
-
-// TitleID returns the title id in the mutation.
-func (m *TitleMutation) TitleID() (id int, exists bool) {
-	if m.title != nil {
-		return *m.title, true
+// RemovedTitles returns the removed ids of titles.
+func (m *TitleMutation) RemovedTitlesIDs() (ids []int) {
+	for id := range m.removedtitles {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// TitleIDs returns the title ids in the mutation.
-// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
-// TitleID instead. It exists only for internal usage by the builders.
-func (m *TitleMutation) TitleIDs() (ids []int) {
-	if id := m.title; id != nil {
-		ids = append(ids, *id)
+// TitlesIDs returns the titles ids in the mutation.
+func (m *TitleMutation) TitlesIDs() (ids []int) {
+	for id := range m.titles {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetTitle reset all changes of the "title" edge.
-func (m *TitleMutation) ResetTitle() {
-	m.title = nil
-	m.clearedtitle = false
+// ResetTitles reset all changes of the "titles" edge.
+func (m *TitleMutation) ResetTitles() {
+	m.titles = nil
+	m.removedtitles = nil
 }
 
 // Op returns the operation name.
@@ -1794,8 +1791,8 @@ func (m *TitleMutation) ResetField(name string) error {
 // mutation.
 func (m *TitleMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.title != nil {
-		edges = append(edges, title.EdgeTitle)
+	if m.titles != nil {
+		edges = append(edges, title.EdgeTitles)
 	}
 	return edges
 }
@@ -1804,10 +1801,12 @@ func (m *TitleMutation) AddedEdges() []string {
 // the given edge name.
 func (m *TitleMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case title.EdgeTitle:
-		if id := m.title; id != nil {
-			return []ent.Value{*id}
+	case title.EdgeTitles:
+		ids := make([]ent.Value, 0, len(m.titles))
+		for id := range m.titles {
+			ids = append(ids, id)
 		}
+		return ids
 	}
 	return nil
 }
@@ -1816,6 +1815,9 @@ func (m *TitleMutation) AddedIDs(name string) []ent.Value {
 // mutation.
 func (m *TitleMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
+	if m.removedtitles != nil {
+		edges = append(edges, title.EdgeTitles)
+	}
 	return edges
 }
 
@@ -1823,6 +1825,12 @@ func (m *TitleMutation) RemovedEdges() []string {
 // the given edge name.
 func (m *TitleMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case title.EdgeTitles:
+		ids := make([]ent.Value, 0, len(m.removedtitles))
+		for id := range m.removedtitles {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -1831,9 +1839,6 @@ func (m *TitleMutation) RemovedIDs(name string) []ent.Value {
 // mutation.
 func (m *TitleMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.clearedtitle {
-		edges = append(edges, title.EdgeTitle)
-	}
 	return edges
 }
 
@@ -1841,8 +1846,6 @@ func (m *TitleMutation) ClearedEdges() []string {
 // cleared in this mutation.
 func (m *TitleMutation) EdgeCleared(name string) bool {
 	switch name {
-	case title.EdgeTitle:
-		return m.clearedtitle
 	}
 	return false
 }
@@ -1851,9 +1854,6 @@ func (m *TitleMutation) EdgeCleared(name string) bool {
 // error if the edge name is not defined in the schema.
 func (m *TitleMutation) ClearEdge(name string) error {
 	switch name {
-	case title.EdgeTitle:
-		m.ClearTitle()
-		return nil
 	}
 	return fmt.Errorf("unknown Title unique edge %s", name)
 }
@@ -1863,8 +1863,8 @@ func (m *TitleMutation) ClearEdge(name string) error {
 // defined in the schema.
 func (m *TitleMutation) ResetEdge(name string) error {
 	switch name {
-	case title.EdgeTitle:
-		m.ResetTitle()
+	case title.EdgeTitles:
+		m.ResetTitles()
 		return nil
 	}
 	return fmt.Errorf("unknown Title edge %s", name)

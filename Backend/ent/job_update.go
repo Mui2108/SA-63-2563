@@ -34,23 +34,19 @@ func (ju *JobUpdate) SetJobName(s string) *JobUpdate {
 	return ju
 }
 
-// SetJobID sets the job edge to Patient by id.
-func (ju *JobUpdate) SetJobID(id int) *JobUpdate {
-	ju.mutation.SetJobID(id)
+// AddJobIDs adds the jobs edge to Patient by ids.
+func (ju *JobUpdate) AddJobIDs(ids ...int) *JobUpdate {
+	ju.mutation.AddJobIDs(ids...)
 	return ju
 }
 
-// SetNillableJobID sets the job edge to Patient by id if the given value is not nil.
-func (ju *JobUpdate) SetNillableJobID(id *int) *JobUpdate {
-	if id != nil {
-		ju = ju.SetJobID(*id)
+// AddJobs adds the jobs edges to Patient.
+func (ju *JobUpdate) AddJobs(p ...*Patient) *JobUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return ju
-}
-
-// SetJob sets the job edge to Patient.
-func (ju *JobUpdate) SetJob(p *Patient) *JobUpdate {
-	return ju.SetJobID(p.ID)
+	return ju.AddJobIDs(ids...)
 }
 
 // Mutation returns the JobMutation object of the builder.
@@ -58,10 +54,19 @@ func (ju *JobUpdate) Mutation() *JobMutation {
 	return ju.mutation
 }
 
-// ClearJob clears the job edge to Patient.
-func (ju *JobUpdate) ClearJob() *JobUpdate {
-	ju.mutation.ClearJob()
+// RemoveJobIDs removes the jobs edge to Patient by ids.
+func (ju *JobUpdate) RemoveJobIDs(ids ...int) *JobUpdate {
+	ju.mutation.RemoveJobIDs(ids...)
 	return ju
+}
+
+// RemoveJobs removes jobs edges to Patient.
+func (ju *JobUpdate) RemoveJobs(p ...*Patient) *JobUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ju.RemoveJobIDs(ids...)
 }
 
 // Save executes the query and returns the number of rows/vertices matched by this operation.
@@ -146,12 +151,12 @@ func (ju *JobUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: job.FieldJobName,
 		})
 	}
-	if ju.mutation.JobCleared() {
+	if nodes := ju.mutation.RemovedJobsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   job.JobTable,
-			Columns: []string{job.JobColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   job.JobsTable,
+			Columns: []string{job.JobsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -160,14 +165,17 @@ func (ju *JobUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				},
 			},
 		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ju.mutation.JobIDs(); len(nodes) > 0 {
+	if nodes := ju.mutation.JobsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   job.JobTable,
-			Columns: []string{job.JobColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   job.JobsTable,
+			Columns: []string{job.JobsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -205,23 +213,19 @@ func (juo *JobUpdateOne) SetJobName(s string) *JobUpdateOne {
 	return juo
 }
 
-// SetJobID sets the job edge to Patient by id.
-func (juo *JobUpdateOne) SetJobID(id int) *JobUpdateOne {
-	juo.mutation.SetJobID(id)
+// AddJobIDs adds the jobs edge to Patient by ids.
+func (juo *JobUpdateOne) AddJobIDs(ids ...int) *JobUpdateOne {
+	juo.mutation.AddJobIDs(ids...)
 	return juo
 }
 
-// SetNillableJobID sets the job edge to Patient by id if the given value is not nil.
-func (juo *JobUpdateOne) SetNillableJobID(id *int) *JobUpdateOne {
-	if id != nil {
-		juo = juo.SetJobID(*id)
+// AddJobs adds the jobs edges to Patient.
+func (juo *JobUpdateOne) AddJobs(p ...*Patient) *JobUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return juo
-}
-
-// SetJob sets the job edge to Patient.
-func (juo *JobUpdateOne) SetJob(p *Patient) *JobUpdateOne {
-	return juo.SetJobID(p.ID)
+	return juo.AddJobIDs(ids...)
 }
 
 // Mutation returns the JobMutation object of the builder.
@@ -229,10 +233,19 @@ func (juo *JobUpdateOne) Mutation() *JobMutation {
 	return juo.mutation
 }
 
-// ClearJob clears the job edge to Patient.
-func (juo *JobUpdateOne) ClearJob() *JobUpdateOne {
-	juo.mutation.ClearJob()
+// RemoveJobIDs removes the jobs edge to Patient by ids.
+func (juo *JobUpdateOne) RemoveJobIDs(ids ...int) *JobUpdateOne {
+	juo.mutation.RemoveJobIDs(ids...)
 	return juo
+}
+
+// RemoveJobs removes jobs edges to Patient.
+func (juo *JobUpdateOne) RemoveJobs(p ...*Patient) *JobUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return juo.RemoveJobIDs(ids...)
 }
 
 // Save executes the query and returns the updated entity.
@@ -315,12 +328,12 @@ func (juo *JobUpdateOne) sqlSave(ctx context.Context) (j *Job, err error) {
 			Column: job.FieldJobName,
 		})
 	}
-	if juo.mutation.JobCleared() {
+	if nodes := juo.mutation.RemovedJobsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   job.JobTable,
-			Columns: []string{job.JobColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   job.JobsTable,
+			Columns: []string{job.JobsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -329,14 +342,17 @@ func (juo *JobUpdateOne) sqlSave(ctx context.Context) (j *Job, err error) {
 				},
 			},
 		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := juo.mutation.JobIDs(); len(nodes) > 0 {
+	if nodes := juo.mutation.JobsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   job.JobTable,
-			Columns: []string{job.JobColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   job.JobsTable,
+			Columns: []string{job.JobsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

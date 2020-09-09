@@ -52,49 +52,61 @@ func (pc *PatientCreate) SetAge(i int) *PatientCreate {
 	return pc
 }
 
-// AddGenderIDs adds the genders edge to Gender by ids.
-func (pc *PatientCreate) AddGenderIDs(ids ...int) *PatientCreate {
-	pc.mutation.AddGenderIDs(ids...)
+// SetPatientsID sets the patients edge to Gender by id.
+func (pc *PatientCreate) SetPatientsID(id int) *PatientCreate {
+	pc.mutation.SetPatientsID(id)
 	return pc
 }
 
-// AddGenders adds the genders edges to Gender.
-func (pc *PatientCreate) AddGenders(g ...*Gender) *PatientCreate {
-	ids := make([]int, len(g))
-	for i := range g {
-		ids[i] = g[i].ID
+// SetNillablePatientsID sets the patients edge to Gender by id if the given value is not nil.
+func (pc *PatientCreate) SetNillablePatientsID(id *int) *PatientCreate {
+	if id != nil {
+		pc = pc.SetPatientsID(*id)
 	}
-	return pc.AddGenderIDs(ids...)
-}
-
-// AddTitleIDs adds the titles edge to Title by ids.
-func (pc *PatientCreate) AddTitleIDs(ids ...int) *PatientCreate {
-	pc.mutation.AddTitleIDs(ids...)
 	return pc
 }
 
-// AddTitles adds the titles edges to Title.
-func (pc *PatientCreate) AddTitles(t ...*Title) *PatientCreate {
-	ids := make([]int, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
-	}
-	return pc.AddTitleIDs(ids...)
+// SetPatients sets the patients edge to Gender.
+func (pc *PatientCreate) SetPatients(g *Gender) *PatientCreate {
+	return pc.SetPatientsID(g.ID)
 }
 
-// AddJobIDs adds the jobs edge to Job by ids.
-func (pc *PatientCreate) AddJobIDs(ids ...int) *PatientCreate {
-	pc.mutation.AddJobIDs(ids...)
+// SetPatientsID sets the patients edge to Title by id.
+func (pc *PatientCreate) SetPatientsID(id int) *PatientCreate {
+	pc.mutation.SetPatientsID(id)
 	return pc
 }
 
-// AddJobs adds the jobs edges to Job.
-func (pc *PatientCreate) AddJobs(j ...*Job) *PatientCreate {
-	ids := make([]int, len(j))
-	for i := range j {
-		ids[i] = j[i].ID
+// SetNillablePatientsID sets the patients edge to Title by id if the given value is not nil.
+func (pc *PatientCreate) SetNillablePatientsID(id *int) *PatientCreate {
+	if id != nil {
+		pc = pc.SetPatientsID(*id)
 	}
-	return pc.AddJobIDs(ids...)
+	return pc
+}
+
+// SetPatients sets the patients edge to Title.
+func (pc *PatientCreate) SetPatients(t *Title) *PatientCreate {
+	return pc.SetPatientsID(t.ID)
+}
+
+// SetPatientsID sets the patients edge to Job by id.
+func (pc *PatientCreate) SetPatientsID(id int) *PatientCreate {
+	pc.mutation.SetPatientsID(id)
+	return pc
+}
+
+// SetNillablePatientsID sets the patients edge to Job by id if the given value is not nil.
+func (pc *PatientCreate) SetNillablePatientsID(id *int) *PatientCreate {
+	if id != nil {
+		pc = pc.SetPatientsID(*id)
+	}
+	return pc
+}
+
+// SetPatients sets the patients edge to Job.
+func (pc *PatientCreate) SetPatients(j *Job) *PatientCreate {
+	return pc.SetPatientsID(j.ID)
 }
 
 // Mutation returns the PatientMutation object of the builder.
@@ -244,12 +256,12 @@ func (pc *PatientCreate) createSpec() (*Patient, *sqlgraph.CreateSpec) {
 		})
 		pa.Age = value
 	}
-	if nodes := pc.mutation.GendersIDs(); len(nodes) > 0 {
+	if nodes := pc.mutation.PatientsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   patient.GendersTable,
-			Columns: []string{patient.GendersColumn},
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   patient.PatientsTable,
+			Columns: []string{patient.PatientsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -263,12 +275,12 @@ func (pc *PatientCreate) createSpec() (*Patient, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := pc.mutation.TitlesIDs(); len(nodes) > 0 {
+	if nodes := pc.mutation.PatientsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   patient.TitlesTable,
-			Columns: []string{patient.TitlesColumn},
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   patient.PatientsTable,
+			Columns: []string{patient.PatientsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -282,12 +294,12 @@ func (pc *PatientCreate) createSpec() (*Patient, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := pc.mutation.JobsIDs(); len(nodes) > 0 {
+	if nodes := pc.mutation.PatientsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   patient.JobsTable,
-			Columns: []string{patient.JobsColumn},
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   patient.PatientsTable,
+			Columns: []string{patient.PatientsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

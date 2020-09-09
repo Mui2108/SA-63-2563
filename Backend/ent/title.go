@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/facebookincubator/ent/dialect/sql"
-	"github.com/panupong/app/ent/patient"
 	"github.com/panupong/app/ent/title"
 )
 
@@ -20,31 +19,25 @@ type Title struct {
 	TitleType string `json:"Title_type,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TitleQuery when eager-loading is set.
-	Edges          TitleEdges `json:"edges"`
-	patient_titles *int
+	Edges TitleEdges `json:"edges"`
 }
 
 // TitleEdges holds the relations/edges for other nodes in the graph.
 type TitleEdges struct {
-	// Title holds the value of the title edge.
-	Title *Patient
+	// Titles holds the value of the titles edge.
+	Titles []*Patient
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// TitleOrErr returns the Title value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e TitleEdges) TitleOrErr() (*Patient, error) {
+// TitlesOrErr returns the Titles value or an error if the edge
+// was not loaded in eager-loading.
+func (e TitleEdges) TitlesOrErr() ([]*Patient, error) {
 	if e.loadedTypes[0] {
-		if e.Title == nil {
-			// The edge title was loaded in eager-loading,
-			// but was not found.
-			return nil, &NotFoundError{label: patient.Label}
-		}
-		return e.Title, nil
+		return e.Titles, nil
 	}
-	return nil, &NotLoadedError{edge: "title"}
+	return nil, &NotLoadedError{edge: "titles"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -52,13 +45,6 @@ func (*Title) scanValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{},  // id
 		&sql.NullString{}, // Title_type
-	}
-}
-
-// fkValues returns the types for scanning foreign-keys values from sql.Rows.
-func (*Title) fkValues() []interface{} {
-	return []interface{}{
-		&sql.NullInt64{}, // patient_titles
 	}
 }
 
@@ -79,21 +65,12 @@ func (t *Title) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		t.TitleType = value.String
 	}
-	values = values[1:]
-	if len(values) == len(title.ForeignKeys) {
-		if value, ok := values[0].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field patient_titles", value)
-		} else if value.Valid {
-			t.patient_titles = new(int)
-			*t.patient_titles = int(value.Int64)
-		}
-	}
 	return nil
 }
 
-// QueryTitle queries the title edge of the Title.
-func (t *Title) QueryTitle() *PatientQuery {
-	return (&TitleClient{config: t.config}).QueryTitle(t)
+// QueryTitles queries the titles edge of the Title.
+func (t *Title) QueryTitles() *PatientQuery {
+	return (&TitleClient{config: t.config}).QueryTitles(t)
 }
 
 // Update returns a builder for updating this Title.

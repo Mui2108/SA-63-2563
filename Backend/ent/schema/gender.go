@@ -21,6 +21,6 @@ func (Gender) Fields() []ent.Field {
 // Edges of the Gender.
 func (Gender) Edges() []ent.Edge {
 	return []ent.Edge{
-        edge.From("gen", Patient.Type).Ref("genders").Unique(),
+		edge.To("genders", Patient.Type),
     }
 }

@@ -34,23 +34,19 @@ func (tu *TitleUpdate) SetTitleType(s string) *TitleUpdate {
 	return tu
 }
 
-// SetTitleID sets the title edge to Patient by id.
-func (tu *TitleUpdate) SetTitleID(id int) *TitleUpdate {
-	tu.mutation.SetTitleID(id)
+// AddTitleIDs adds the titles edge to Patient by ids.
+func (tu *TitleUpdate) AddTitleIDs(ids ...int) *TitleUpdate {
+	tu.mutation.AddTitleIDs(ids...)
 	return tu
 }
 
-// SetNillableTitleID sets the title edge to Patient by id if the given value is not nil.
-func (tu *TitleUpdate) SetNillableTitleID(id *int) *TitleUpdate {
-	if id != nil {
-		tu = tu.SetTitleID(*id)
+// AddTitles adds the titles edges to Patient.
+func (tu *TitleUpdate) AddTitles(p ...*Patient) *TitleUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return tu
-}
-
-// SetTitle sets the title edge to Patient.
-func (tu *TitleUpdate) SetTitle(p *Patient) *TitleUpdate {
-	return tu.SetTitleID(p.ID)
+	return tu.AddTitleIDs(ids...)
 }
 
 // Mutation returns the TitleMutation object of the builder.
@@ -58,10 +54,19 @@ func (tu *TitleUpdate) Mutation() *TitleMutation {
 	return tu.mutation
 }
 
-// ClearTitle clears the title edge to Patient.
-func (tu *TitleUpdate) ClearTitle() *TitleUpdate {
-	tu.mutation.ClearTitle()
+// RemoveTitleIDs removes the titles edge to Patient by ids.
+func (tu *TitleUpdate) RemoveTitleIDs(ids ...int) *TitleUpdate {
+	tu.mutation.RemoveTitleIDs(ids...)
 	return tu
+}
+
+// RemoveTitles removes titles edges to Patient.
+func (tu *TitleUpdate) RemoveTitles(p ...*Patient) *TitleUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tu.RemoveTitleIDs(ids...)
 }
 
 // Save executes the query and returns the number of rows/vertices matched by this operation.
@@ -146,12 +151,12 @@ func (tu *TitleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: title.FieldTitleType,
 		})
 	}
-	if tu.mutation.TitleCleared() {
+	if nodes := tu.mutation.RemovedTitlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   title.TitleTable,
-			Columns: []string{title.TitleColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   title.TitlesTable,
+			Columns: []string{title.TitlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -160,14 +165,17 @@ func (tu *TitleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				},
 			},
 		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tu.mutation.TitleIDs(); len(nodes) > 0 {
+	if nodes := tu.mutation.TitlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   title.TitleTable,
-			Columns: []string{title.TitleColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   title.TitlesTable,
+			Columns: []string{title.TitlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -205,23 +213,19 @@ func (tuo *TitleUpdateOne) SetTitleType(s string) *TitleUpdateOne {
 	return tuo
 }
 
-// SetTitleID sets the title edge to Patient by id.
-func (tuo *TitleUpdateOne) SetTitleID(id int) *TitleUpdateOne {
-	tuo.mutation.SetTitleID(id)
+// AddTitleIDs adds the titles edge to Patient by ids.
+func (tuo *TitleUpdateOne) AddTitleIDs(ids ...int) *TitleUpdateOne {
+	tuo.mutation.AddTitleIDs(ids...)
 	return tuo
 }
 
-// SetNillableTitleID sets the title edge to Patient by id if the given value is not nil.
-func (tuo *TitleUpdateOne) SetNillableTitleID(id *int) *TitleUpdateOne {
-	if id != nil {
-		tuo = tuo.SetTitleID(*id)
+// AddTitles adds the titles edges to Patient.
+func (tuo *TitleUpdateOne) AddTitles(p ...*Patient) *TitleUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return tuo
-}
-
-// SetTitle sets the title edge to Patient.
-func (tuo *TitleUpdateOne) SetTitle(p *Patient) *TitleUpdateOne {
-	return tuo.SetTitleID(p.ID)
+	return tuo.AddTitleIDs(ids...)
 }
 
 // Mutation returns the TitleMutation object of the builder.
@@ -229,10 +233,19 @@ func (tuo *TitleUpdateOne) Mutation() *TitleMutation {
 	return tuo.mutation
 }
 
-// ClearTitle clears the title edge to Patient.
-func (tuo *TitleUpdateOne) ClearTitle() *TitleUpdateOne {
-	tuo.mutation.ClearTitle()
+// RemoveTitleIDs removes the titles edge to Patient by ids.
+func (tuo *TitleUpdateOne) RemoveTitleIDs(ids ...int) *TitleUpdateOne {
+	tuo.mutation.RemoveTitleIDs(ids...)
 	return tuo
+}
+
+// RemoveTitles removes titles edges to Patient.
+func (tuo *TitleUpdateOne) RemoveTitles(p ...*Patient) *TitleUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tuo.RemoveTitleIDs(ids...)
 }
 
 // Save executes the query and returns the updated entity.
@@ -315,12 +328,12 @@ func (tuo *TitleUpdateOne) sqlSave(ctx context.Context) (t *Title, err error) {
 			Column: title.FieldTitleType,
 		})
 	}
-	if tuo.mutation.TitleCleared() {
+	if nodes := tuo.mutation.RemovedTitlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   title.TitleTable,
-			Columns: []string{title.TitleColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   title.TitlesTable,
+			Columns: []string{title.TitlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -329,14 +342,17 @@ func (tuo *TitleUpdateOne) sqlSave(ctx context.Context) (t *Title, err error) {
 				},
 			},
 		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tuo.mutation.TitleIDs(); len(nodes) > 0 {
+	if nodes := tuo.mutation.TitlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   title.TitleTable,
-			Columns: []string{title.TitleColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   title.TitlesTable,
+			Columns: []string{title.TitlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

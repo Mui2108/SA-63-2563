@@ -21,6 +21,6 @@ func (Job) Fields() []ent.Field {
 // Edges of the Job.
 func (Job) Edges() []ent.Edge {
 	return []ent.Edge{
-        edge.From("job", Patient.Type).Ref("jobs").Unique(),
+        edge.To("jobs", Patient.Type),
     }
 }

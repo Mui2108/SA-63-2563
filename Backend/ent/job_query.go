@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -25,8 +26,7 @@ type JobQuery struct {
 	unique     []string
 	predicates []predicate.Job
 	// eager-loading edges.
-	withJob *PatientQuery
-	withFKs bool
+	withJobs *PatientQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -56,8 +56,8 @@ func (jq *JobQuery) Order(o ...OrderFunc) *JobQuery {
 	return jq
 }
 
-// QueryJob chains the current query on the job edge.
-func (jq *JobQuery) QueryJob() *PatientQuery {
+// QueryJobs chains the current query on the jobs edge.
+func (jq *JobQuery) QueryJobs() *PatientQuery {
 	query := &PatientQuery{config: jq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := jq.prepareQuery(ctx); err != nil {
@@ -66,7 +66,7 @@ func (jq *JobQuery) QueryJob() *PatientQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(job.Table, job.FieldID, jq.sqlQuery()),
 			sqlgraph.To(patient.Table, patient.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, job.JobTable, job.JobColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, job.JobsTable, job.JobsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(jq.driver.Dialect(), step)
 		return fromU, nil
@@ -253,14 +253,14 @@ func (jq *JobQuery) Clone() *JobQuery {
 	}
 }
 
-//  WithJob tells the query-builder to eager-loads the nodes that are connected to
-// the "job" edge. The optional arguments used to configure the query builder of the edge.
-func (jq *JobQuery) WithJob(opts ...func(*PatientQuery)) *JobQuery {
+//  WithJobs tells the query-builder to eager-loads the nodes that are connected to
+// the "jobs" edge. The optional arguments used to configure the query builder of the edge.
+func (jq *JobQuery) WithJobs(opts ...func(*PatientQuery)) *JobQuery {
 	query := &PatientQuery{config: jq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	jq.withJob = query
+	jq.withJobs = query
 	return jq
 }
 
@@ -329,25 +329,15 @@ func (jq *JobQuery) prepareQuery(ctx context.Context) error {
 func (jq *JobQuery) sqlAll(ctx context.Context) ([]*Job, error) {
 	var (
 		nodes       = []*Job{}
-		withFKs     = jq.withFKs
 		_spec       = jq.querySpec()
 		loadedTypes = [1]bool{
-			jq.withJob != nil,
+			jq.withJobs != nil,
 		}
 	)
-	if jq.withJob != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, job.ForeignKeys...)
-	}
 	_spec.ScanValues = func() []interface{} {
 		node := &Job{config: jq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -365,28 +355,31 @@ func (jq *JobQuery) sqlAll(ctx context.Context) ([]*Job, error) {
 		return nodes, nil
 	}
 
-	if query := jq.withJob; query != nil {
-		ids := make([]int, 0, len(nodes))
-		nodeids := make(map[int][]*Job)
+	if query := jq.withJobs; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*Job)
 		for i := range nodes {
-			if fk := nodes[i].patient_jobs; fk != nil {
-				ids = append(ids, *fk)
-				nodeids[*fk] = append(nodeids[*fk], nodes[i])
-			}
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
 		}
-		query.Where(patient.IDIn(ids...))
+		query.withFKs = true
+		query.Where(predicate.Patient(func(s *sql.Selector) {
+			s.Where(sql.InValues(job.JobsColumn, fks...))
+		}))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			nodes, ok := nodeids[n.ID]
+			fk := n.job_jobs
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "job_jobs" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "patient_jobs" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "job_jobs" returned %v for node %v`, *fk, n.ID)
 			}
-			for i := range nodes {
-				nodes[i].Edges.Job = n
-			}
+			node.Edges.Jobs = append(node.Edges.Jobs, n)
 		}
 	}
 

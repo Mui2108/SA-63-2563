@@ -20,6 +20,6 @@ func (Title) Fields() []ent.Field {
 // Edges of the Title.
 func (Title) Edges() []ent.Edge {
 	return []ent.Edge{
-        edge.From("title", Patient.Type).Ref("titles").Unique(),
+        edge.To("titles", Patient.Type),
     }
 }

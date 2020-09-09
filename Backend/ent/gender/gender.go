@@ -10,29 +10,24 @@ const (
 	// FieldGenderType holds the string denoting the gender_type field in the database.
 	FieldGenderType = "gender_type"
 
-	// EdgeGen holds the string denoting the gen edge name in mutations.
-	EdgeGen = "gen"
+	// EdgeGenders holds the string denoting the genders edge name in mutations.
+	EdgeGenders = "genders"
 
 	// Table holds the table name of the gender in the database.
 	Table = "genders"
-	// GenTable is the table the holds the gen relation/edge.
-	GenTable = "genders"
-	// GenInverseTable is the table name for the Patient entity.
+	// GendersTable is the table the holds the genders relation/edge.
+	GendersTable = "patients"
+	// GendersInverseTable is the table name for the Patient entity.
 	// It exists in this package in order to avoid circular dependency with the "patient" package.
-	GenInverseTable = "patients"
-	// GenColumn is the table column denoting the gen relation/edge.
-	GenColumn = "patient_genders"
+	GendersInverseTable = "patients"
+	// GendersColumn is the table column denoting the genders relation/edge.
+	GendersColumn = "gender_genders"
 )
 
 // Columns holds all SQL columns for gender fields.
 var Columns = []string{
 	FieldID,
 	FieldGenderType,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the Gender type.
-var ForeignKeys = []string{
-	"patient_genders",
 }
 
 var (

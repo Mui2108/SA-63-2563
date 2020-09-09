@@ -8,7 +8,6 @@ import (
 
 	"github.com/facebookincubator/ent/dialect/sql"
 	"github.com/panupong/app/ent/job"
-	"github.com/panupong/app/ent/patient"
 )
 
 // Job is the model entity for the Job schema.
@@ -20,31 +19,25 @@ type Job struct {
 	JobName string `json:"Job_name,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the JobQuery when eager-loading is set.
-	Edges        JobEdges `json:"edges"`
-	patient_jobs *int
+	Edges JobEdges `json:"edges"`
 }
 
 // JobEdges holds the relations/edges for other nodes in the graph.
 type JobEdges struct {
-	// Job holds the value of the job edge.
-	Job *Patient
+	// Jobs holds the value of the jobs edge.
+	Jobs []*Patient
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// JobOrErr returns the Job value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e JobEdges) JobOrErr() (*Patient, error) {
+// JobsOrErr returns the Jobs value or an error if the edge
+// was not loaded in eager-loading.
+func (e JobEdges) JobsOrErr() ([]*Patient, error) {
 	if e.loadedTypes[0] {
-		if e.Job == nil {
-			// The edge job was loaded in eager-loading,
-			// but was not found.
-			return nil, &NotFoundError{label: patient.Label}
-		}
-		return e.Job, nil
+		return e.Jobs, nil
 	}
-	return nil, &NotLoadedError{edge: "job"}
+	return nil, &NotLoadedError{edge: "jobs"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -52,13 +45,6 @@ func (*Job) scanValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{},  // id
 		&sql.NullString{}, // Job_name
-	}
-}
-
-// fkValues returns the types for scanning foreign-keys values from sql.Rows.
-func (*Job) fkValues() []interface{} {
-	return []interface{}{
-		&sql.NullInt64{}, // patient_jobs
 	}
 }
 
@@ -79,21 +65,12 @@ func (j *Job) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		j.JobName = value.String
 	}
-	values = values[1:]
-	if len(values) == len(job.ForeignKeys) {
-		if value, ok := values[0].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field patient_jobs", value)
-		} else if value.Valid {
-			j.patient_jobs = new(int)
-			*j.patient_jobs = int(value.Int64)
-		}
-	}
 	return nil
 }
 
-// QueryJob queries the job edge of the Job.
-func (j *Job) QueryJob() *PatientQuery {
-	return (&JobClient{config: j.config}).QueryJob(j)
+// QueryJobs queries the jobs edge of the Job.
+func (j *Job) QueryJobs() *PatientQuery {
+	return (&JobClient{config: j.config}).QueryJobs(j)
 }
 
 // Update returns a builder for updating this Job.

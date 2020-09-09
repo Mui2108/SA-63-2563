@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -28,9 +27,10 @@ type PatientQuery struct {
 	unique     []string
 	predicates []predicate.Patient
 	// eager-loading edges.
-	withGenders *GenderQuery
-	withTitles  *TitleQuery
-	withJobs    *JobQuery
+	withPatients *GenderQuery
+	withPatients *TitleQuery
+	withPatients *JobQuery
+	withFKs      bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -60,8 +60,8 @@ func (pq *PatientQuery) Order(o ...OrderFunc) *PatientQuery {
 	return pq
 }
 
-// QueryGenders chains the current query on the genders edge.
-func (pq *PatientQuery) QueryGenders() *GenderQuery {
+// QueryPatients chains the current query on the patients edge.
+func (pq *PatientQuery) QueryPatients() *GenderQuery {
 	query := &GenderQuery{config: pq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
@@ -70,7 +70,7 @@ func (pq *PatientQuery) QueryGenders() *GenderQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(patient.Table, patient.FieldID, pq.sqlQuery()),
 			sqlgraph.To(gender.Table, gender.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, patient.GendersTable, patient.GendersColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, patient.PatientsTable, patient.PatientsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -78,8 +78,8 @@ func (pq *PatientQuery) QueryGenders() *GenderQuery {
 	return query
 }
 
-// QueryTitles chains the current query on the titles edge.
-func (pq *PatientQuery) QueryTitles() *TitleQuery {
+// QueryPatients chains the current query on the patients edge.
+func (pq *PatientQuery) QueryPatients() *TitleQuery {
 	query := &TitleQuery{config: pq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
@@ -88,7 +88,7 @@ func (pq *PatientQuery) QueryTitles() *TitleQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(patient.Table, patient.FieldID, pq.sqlQuery()),
 			sqlgraph.To(title.Table, title.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, patient.TitlesTable, patient.TitlesColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, patient.PatientsTable, patient.PatientsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -96,8 +96,8 @@ func (pq *PatientQuery) QueryTitles() *TitleQuery {
 	return query
 }
 
-// QueryJobs chains the current query on the jobs edge.
-func (pq *PatientQuery) QueryJobs() *JobQuery {
+// QueryPatients chains the current query on the patients edge.
+func (pq *PatientQuery) QueryPatients() *JobQuery {
 	query := &JobQuery{config: pq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
@@ -106,7 +106,7 @@ func (pq *PatientQuery) QueryJobs() *JobQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(patient.Table, patient.FieldID, pq.sqlQuery()),
 			sqlgraph.To(job.Table, job.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, patient.JobsTable, patient.JobsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, patient.PatientsTable, patient.PatientsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -293,36 +293,36 @@ func (pq *PatientQuery) Clone() *PatientQuery {
 	}
 }
 
-//  WithGenders tells the query-builder to eager-loads the nodes that are connected to
-// the "genders" edge. The optional arguments used to configure the query builder of the edge.
-func (pq *PatientQuery) WithGenders(opts ...func(*GenderQuery)) *PatientQuery {
+//  WithPatients tells the query-builder to eager-loads the nodes that are connected to
+// the "patients" edge. The optional arguments used to configure the query builder of the edge.
+func (pq *PatientQuery) WithPatients(opts ...func(*GenderQuery)) *PatientQuery {
 	query := &GenderQuery{config: pq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	pq.withGenders = query
+	pq.withPatients = query
 	return pq
 }
 
-//  WithTitles tells the query-builder to eager-loads the nodes that are connected to
-// the "titles" edge. The optional arguments used to configure the query builder of the edge.
-func (pq *PatientQuery) WithTitles(opts ...func(*TitleQuery)) *PatientQuery {
+//  WithPatients tells the query-builder to eager-loads the nodes that are connected to
+// the "patients" edge. The optional arguments used to configure the query builder of the edge.
+func (pq *PatientQuery) WithPatients(opts ...func(*TitleQuery)) *PatientQuery {
 	query := &TitleQuery{config: pq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	pq.withTitles = query
+	pq.withPatients = query
 	return pq
 }
 
-//  WithJobs tells the query-builder to eager-loads the nodes that are connected to
-// the "jobs" edge. The optional arguments used to configure the query builder of the edge.
-func (pq *PatientQuery) WithJobs(opts ...func(*JobQuery)) *PatientQuery {
+//  WithPatients tells the query-builder to eager-loads the nodes that are connected to
+// the "patients" edge. The optional arguments used to configure the query builder of the edge.
+func (pq *PatientQuery) WithPatients(opts ...func(*JobQuery)) *PatientQuery {
 	query := &JobQuery{config: pq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	pq.withJobs = query
+	pq.withPatients = query
 	return pq
 }
 
@@ -391,17 +391,27 @@ func (pq *PatientQuery) prepareQuery(ctx context.Context) error {
 func (pq *PatientQuery) sqlAll(ctx context.Context) ([]*Patient, error) {
 	var (
 		nodes       = []*Patient{}
+		withFKs     = pq.withFKs
 		_spec       = pq.querySpec()
 		loadedTypes = [3]bool{
-			pq.withGenders != nil,
-			pq.withTitles != nil,
-			pq.withJobs != nil,
+			pq.withPatients != nil,
+			pq.withPatients != nil,
+			pq.withPatients != nil,
 		}
 	)
+	if pq.withPatients != nil || pq.withPatients != nil || pq.withPatients != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, patient.ForeignKeys...)
+	}
 	_spec.ScanValues = func() []interface{} {
 		node := &Patient{config: pq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
+		if withFKs {
+			values = append(values, node.fkValues()...)
+		}
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -419,87 +429,78 @@ func (pq *PatientQuery) sqlAll(ctx context.Context) ([]*Patient, error) {
 		return nodes, nil
 	}
 
-	if query := pq.withGenders; query != nil {
-		fks := make([]driver.Value, 0, len(nodes))
-		nodeids := make(map[int]*Patient)
+	if query := pq.withPatients; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*Patient)
 		for i := range nodes {
-			fks = append(fks, nodes[i].ID)
-			nodeids[nodes[i].ID] = nodes[i]
+			if fk := nodes[i].gender_genders; fk != nil {
+				ids = append(ids, *fk)
+				nodeids[*fk] = append(nodeids[*fk], nodes[i])
+			}
 		}
-		query.withFKs = true
-		query.Where(predicate.Gender(func(s *sql.Selector) {
-			s.Where(sql.InValues(patient.GendersColumn, fks...))
-		}))
+		query.Where(gender.IDIn(ids...))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.patient_genders
-			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "patient_genders" is nil for node %v`, n.ID)
-			}
-			node, ok := nodeids[*fk]
+			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "patient_genders" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "gender_genders" returned %v`, n.ID)
 			}
-			node.Edges.Genders = append(node.Edges.Genders, n)
+			for i := range nodes {
+				nodes[i].Edges.Patients = n
+			}
 		}
 	}
 
-	if query := pq.withTitles; query != nil {
-		fks := make([]driver.Value, 0, len(nodes))
-		nodeids := make(map[int]*Patient)
+	if query := pq.withPatients; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*Patient)
 		for i := range nodes {
-			fks = append(fks, nodes[i].ID)
-			nodeids[nodes[i].ID] = nodes[i]
+			if fk := nodes[i].title_titles; fk != nil {
+				ids = append(ids, *fk)
+				nodeids[*fk] = append(nodeids[*fk], nodes[i])
+			}
 		}
-		query.withFKs = true
-		query.Where(predicate.Title(func(s *sql.Selector) {
-			s.Where(sql.InValues(patient.TitlesColumn, fks...))
-		}))
+		query.Where(title.IDIn(ids...))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.patient_titles
-			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "patient_titles" is nil for node %v`, n.ID)
-			}
-			node, ok := nodeids[*fk]
+			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "patient_titles" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "title_titles" returned %v`, n.ID)
 			}
-			node.Edges.Titles = append(node.Edges.Titles, n)
+			for i := range nodes {
+				nodes[i].Edges.Patients = n
+			}
 		}
 	}
 
-	if query := pq.withJobs; query != nil {
-		fks := make([]driver.Value, 0, len(nodes))
-		nodeids := make(map[int]*Patient)
+	if query := pq.withPatients; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*Patient)
 		for i := range nodes {
-			fks = append(fks, nodes[i].ID)
-			nodeids[nodes[i].ID] = nodes[i]
+			if fk := nodes[i].job_jobs; fk != nil {
+				ids = append(ids, *fk)
+				nodeids[*fk] = append(nodeids[*fk], nodes[i])
+			}
 		}
-		query.withFKs = true
-		query.Where(predicate.Job(func(s *sql.Selector) {
-			s.Where(sql.InValues(patient.JobsColumn, fks...))
-		}))
+		query.Where(job.IDIn(ids...))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.patient_jobs
-			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "patient_jobs" is nil for node %v`, n.ID)
-			}
-			node, ok := nodeids[*fk]
+			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "patient_jobs" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "job_jobs" returned %v`, n.ID)
 			}
-			node.Edges.Jobs = append(node.Edges.Jobs, n)
+			for i := range nodes {
+				nodes[i].Edges.Patients = n
+			}
 		}
 	}
 

@@ -18,36 +18,36 @@ const (
 	// FieldAge holds the string denoting the age field in the database.
 	FieldAge = "age"
 
-	// EdgeGenders holds the string denoting the genders edge name in mutations.
-	EdgeGenders = "genders"
-	// EdgeTitles holds the string denoting the titles edge name in mutations.
-	EdgeTitles = "titles"
-	// EdgeJobs holds the string denoting the jobs edge name in mutations.
-	EdgeJobs = "jobs"
+	// EdgePatients holds the string denoting the patients edge name in mutations.
+	EdgePatients = "patients"
+	// EdgePatients holds the string denoting the patients edge name in mutations.
+	EdgePatients = "patients"
+	// EdgePatients holds the string denoting the patients edge name in mutations.
+	EdgePatients = "patients"
 
 	// Table holds the table name of the patient in the database.
 	Table = "patients"
-	// GendersTable is the table the holds the genders relation/edge.
-	GendersTable = "genders"
-	// GendersInverseTable is the table name for the Gender entity.
+	// PatientsTable is the table the holds the patients relation/edge.
+	PatientsTable = "patients"
+	// PatientsInverseTable is the table name for the Gender entity.
 	// It exists in this package in order to avoid circular dependency with the "gender" package.
-	GendersInverseTable = "genders"
-	// GendersColumn is the table column denoting the genders relation/edge.
-	GendersColumn = "patient_genders"
-	// TitlesTable is the table the holds the titles relation/edge.
-	TitlesTable = "titles"
-	// TitlesInverseTable is the table name for the Title entity.
+	PatientsInverseTable = "genders"
+	// PatientsColumn is the table column denoting the patients relation/edge.
+	PatientsColumn = "gender_genders"
+	// PatientsTable is the table the holds the patients relation/edge.
+	PatientsTable = "patients"
+	// PatientsInverseTable is the table name for the Title entity.
 	// It exists in this package in order to avoid circular dependency with the "title" package.
-	TitlesInverseTable = "titles"
-	// TitlesColumn is the table column denoting the titles relation/edge.
-	TitlesColumn = "patient_titles"
-	// JobsTable is the table the holds the jobs relation/edge.
-	JobsTable = "jobs"
-	// JobsInverseTable is the table name for the Job entity.
+	PatientsInverseTable = "titles"
+	// PatientsColumn is the table column denoting the patients relation/edge.
+	PatientsColumn = "title_titles"
+	// PatientsTable is the table the holds the patients relation/edge.
+	PatientsTable = "patients"
+	// PatientsInverseTable is the table name for the Job entity.
 	// It exists in this package in order to avoid circular dependency with the "job" package.
-	JobsInverseTable = "jobs"
-	// JobsColumn is the table column denoting the jobs relation/edge.
-	JobsColumn = "patient_jobs"
+	PatientsInverseTable = "jobs"
+	// PatientsColumn is the table column denoting the patients relation/edge.
+	PatientsColumn = "job_jobs"
 )
 
 // Columns holds all SQL columns for patient fields.
@@ -58,6 +58,13 @@ var Columns = []string{
 	FieldLastName,
 	FieldAllergic,
 	FieldAge,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the Patient type.
+var ForeignKeys = []string{
+	"gender_genders",
+	"job_jobs",
+	"title_titles",
 }
 
 var (

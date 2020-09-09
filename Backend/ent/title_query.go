@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -25,8 +26,7 @@ type TitleQuery struct {
 	unique     []string
 	predicates []predicate.Title
 	// eager-loading edges.
-	withTitle *PatientQuery
-	withFKs   bool
+	withTitles *PatientQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -56,8 +56,8 @@ func (tq *TitleQuery) Order(o ...OrderFunc) *TitleQuery {
 	return tq
 }
 
-// QueryTitle chains the current query on the title edge.
-func (tq *TitleQuery) QueryTitle() *PatientQuery {
+// QueryTitles chains the current query on the titles edge.
+func (tq *TitleQuery) QueryTitles() *PatientQuery {
 	query := &PatientQuery{config: tq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := tq.prepareQuery(ctx); err != nil {
@@ -66,7 +66,7 @@ func (tq *TitleQuery) QueryTitle() *PatientQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(title.Table, title.FieldID, tq.sqlQuery()),
 			sqlgraph.To(patient.Table, patient.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, title.TitleTable, title.TitleColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, title.TitlesTable, title.TitlesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -253,14 +253,14 @@ func (tq *TitleQuery) Clone() *TitleQuery {
 	}
 }
 
-//  WithTitle tells the query-builder to eager-loads the nodes that are connected to
-// the "title" edge. The optional arguments used to configure the query builder of the edge.
-func (tq *TitleQuery) WithTitle(opts ...func(*PatientQuery)) *TitleQuery {
+//  WithTitles tells the query-builder to eager-loads the nodes that are connected to
+// the "titles" edge. The optional arguments used to configure the query builder of the edge.
+func (tq *TitleQuery) WithTitles(opts ...func(*PatientQuery)) *TitleQuery {
 	query := &PatientQuery{config: tq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	tq.withTitle = query
+	tq.withTitles = query
 	return tq
 }
 
@@ -329,25 +329,15 @@ func (tq *TitleQuery) prepareQuery(ctx context.Context) error {
 func (tq *TitleQuery) sqlAll(ctx context.Context) ([]*Title, error) {
 	var (
 		nodes       = []*Title{}
-		withFKs     = tq.withFKs
 		_spec       = tq.querySpec()
 		loadedTypes = [1]bool{
-			tq.withTitle != nil,
+			tq.withTitles != nil,
 		}
 	)
-	if tq.withTitle != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, title.ForeignKeys...)
-	}
 	_spec.ScanValues = func() []interface{} {
 		node := &Title{config: tq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -365,28 +355,31 @@ func (tq *TitleQuery) sqlAll(ctx context.Context) ([]*Title, error) {
 		return nodes, nil
 	}
 
-	if query := tq.withTitle; query != nil {
-		ids := make([]int, 0, len(nodes))
-		nodeids := make(map[int][]*Title)
+	if query := tq.withTitles; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*Title)
 		for i := range nodes {
-			if fk := nodes[i].patient_titles; fk != nil {
-				ids = append(ids, *fk)
-				nodeids[*fk] = append(nodeids[*fk], nodes[i])
-			}
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
 		}
-		query.Where(patient.IDIn(ids...))
+		query.withFKs = true
+		query.Where(predicate.Patient(func(s *sql.Selector) {
+			s.Where(sql.InValues(title.TitlesColumn, fks...))
+		}))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			nodes, ok := nodeids[n.ID]
+			fk := n.title_titles
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "title_titles" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "patient_titles" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "title_titles" returned %v for node %v`, *fk, n.ID)
 			}
-			for i := range nodes {
-				nodes[i].Edges.Title = n
-			}
+			node.Edges.Titles = append(node.Edges.Titles, n)
 		}
 	}
 
