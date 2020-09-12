@@ -40,6 +40,7 @@ var (
 		{Name: "last_name", Type: field.TypeString},
 		{Name: "allergic", Type: field.TypeString},
 		{Name: "age", Type: field.TypeInt},
+		{Name: "birthday", Type: field.TypeTime},
 		{Name: "gender_genders", Type: field.TypeInt, Nullable: true},
 		{Name: "job_jobs", Type: field.TypeInt, Nullable: true},
 		{Name: "title_titles", Type: field.TypeInt, Nullable: true},
@@ -52,21 +53,21 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "patients_genders_genders",
-				Columns: []*schema.Column{PatientsColumns[6]},
+				Columns: []*schema.Column{PatientsColumns[7]},
 
 				RefColumns: []*schema.Column{GendersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:  "patients_jobs_jobs",
-				Columns: []*schema.Column{PatientsColumns[7]},
+				Columns: []*schema.Column{PatientsColumns[8]},
 
 				RefColumns: []*schema.Column{JobsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:  "patients_titles_titles",
-				Columns: []*schema.Column{PatientsColumns[8]},
+				Columns: []*schema.Column{PatientsColumns[9]},
 
 				RefColumns: []*schema.Column{TitlesColumns[0]},
 				OnDelete:   schema.SetNull,

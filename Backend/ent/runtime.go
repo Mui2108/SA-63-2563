@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"time"
+
 	"github.com/panupong/app/ent/gender"
 	"github.com/panupong/app/ent/job"
 	"github.com/panupong/app/ent/patient"
@@ -48,6 +50,10 @@ func init() {
 	patientDescAge := patientFields[4].Descriptor()
 	// patient.AgeValidator is a validator for the "age" field. It is called by the builders before save.
 	patient.AgeValidator = patientDescAge.Validators[0].(func(int) error)
+	// patientDescBirthday is the schema descriptor for Birthday field.
+	patientDescBirthday := patientFields[5].Descriptor()
+	// patient.DefaultBirthday holds the default value on creation for the Birthday field.
+	patient.DefaultBirthday = patientDescBirthday.Default.(func() time.Time)
 	titleFields := schema.Title{}.Fields()
 	_ = titleFields
 	// titleDescTitleType is the schema descriptor for Title_type field.

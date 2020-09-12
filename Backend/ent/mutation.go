@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/panupong/app/ent/gender"
 	"github.com/panupong/app/ent/job"
@@ -779,6 +780,7 @@ type PatientMutation struct {
 	_Allergic       *string
 	age             *int
 	addage          *int
+	_Birthday       *time.Time
 	clearedFields   map[string]struct{}
 	patients        *int
 	clearedpatients bool
@@ -1074,6 +1076,43 @@ func (m *PatientMutation) ResetAge() {
 	m.addage = nil
 }
 
+// SetBirthday sets the Birthday field.
+func (m *PatientMutation) SetBirthday(t time.Time) {
+	m._Birthday = &t
+}
+
+// Birthday returns the Birthday value in the mutation.
+func (m *PatientMutation) Birthday() (r time.Time, exists bool) {
+	v := m._Birthday
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBirthday returns the old Birthday value of the Patient.
+// If the Patient object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *PatientMutation) OldBirthday(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldBirthday is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldBirthday requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBirthday: %w", err)
+	}
+	return oldValue.Birthday, nil
+}
+
+// ResetBirthday reset all changes of the "Birthday" field.
+func (m *PatientMutation) ResetBirthday() {
+	m._Birthday = nil
+}
+
 // SetPatientsID sets the patients edge to Gender by id.
 func (m *PatientMutation) SetPatientsID(id int) {
 	m.patients = &id
@@ -1205,7 +1244,7 @@ func (m *PatientMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *PatientMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m._Card_id != nil {
 		fields = append(fields, patient.FieldCardID)
 	}
@@ -1220,6 +1259,9 @@ func (m *PatientMutation) Fields() []string {
 	}
 	if m.age != nil {
 		fields = append(fields, patient.FieldAge)
+	}
+	if m._Birthday != nil {
+		fields = append(fields, patient.FieldBirthday)
 	}
 	return fields
 }
@@ -1239,6 +1281,8 @@ func (m *PatientMutation) Field(name string) (ent.Value, bool) {
 		return m.Allergic()
 	case patient.FieldAge:
 		return m.Age()
+	case patient.FieldBirthday:
+		return m.Birthday()
 	}
 	return nil, false
 }
@@ -1258,6 +1302,8 @@ func (m *PatientMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldAllergic(ctx)
 	case patient.FieldAge:
 		return m.OldAge(ctx)
+	case patient.FieldBirthday:
+		return m.OldBirthday(ctx)
 	}
 	return nil, fmt.Errorf("unknown Patient field %s", name)
 }
@@ -1301,6 +1347,13 @@ func (m *PatientMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAge(v)
+		return nil
+	case patient.FieldBirthday:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBirthday(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Patient field %s", name)
@@ -1381,6 +1434,9 @@ func (m *PatientMutation) ResetField(name string) error {
 		return nil
 	case patient.FieldAge:
 		m.ResetAge()
+		return nil
+	case patient.FieldBirthday:
+		m.ResetBirthday()
 		return nil
 	}
 	return fmt.Errorf("unknown Patient field %s", name)

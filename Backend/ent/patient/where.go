@@ -3,6 +3,8 @@
 package patient
 
 import (
+	"time"
+
 	"github.com/facebookincubator/ent/dialect/sql"
 	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
 	"github.com/panupong/app/ent/predicate"
@@ -123,6 +125,13 @@ func Allergic(v string) predicate.Patient {
 func Age(v int) predicate.Patient {
 	return predicate.Patient(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldAge), v))
+	})
+}
+
+// Birthday applies equality check predicate on the "Birthday" field. It's identical to BirthdayEQ.
+func Birthday(v time.Time) predicate.Patient {
+	return predicate.Patient(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldBirthday), v))
 	})
 }
 
@@ -643,6 +652,82 @@ func AgeLT(v int) predicate.Patient {
 func AgeLTE(v int) predicate.Patient {
 	return predicate.Patient(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldAge), v))
+	})
+}
+
+// BirthdayEQ applies the EQ predicate on the "Birthday" field.
+func BirthdayEQ(v time.Time) predicate.Patient {
+	return predicate.Patient(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldBirthday), v))
+	})
+}
+
+// BirthdayNEQ applies the NEQ predicate on the "Birthday" field.
+func BirthdayNEQ(v time.Time) predicate.Patient {
+	return predicate.Patient(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldBirthday), v))
+	})
+}
+
+// BirthdayIn applies the In predicate on the "Birthday" field.
+func BirthdayIn(vs ...time.Time) predicate.Patient {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Patient(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldBirthday), v...))
+	})
+}
+
+// BirthdayNotIn applies the NotIn predicate on the "Birthday" field.
+func BirthdayNotIn(vs ...time.Time) predicate.Patient {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Patient(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldBirthday), v...))
+	})
+}
+
+// BirthdayGT applies the GT predicate on the "Birthday" field.
+func BirthdayGT(v time.Time) predicate.Patient {
+	return predicate.Patient(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldBirthday), v))
+	})
+}
+
+// BirthdayGTE applies the GTE predicate on the "Birthday" field.
+func BirthdayGTE(v time.Time) predicate.Patient {
+	return predicate.Patient(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldBirthday), v))
+	})
+}
+
+// BirthdayLT applies the LT predicate on the "Birthday" field.
+func BirthdayLT(v time.Time) predicate.Patient {
+	return predicate.Patient(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldBirthday), v))
+	})
+}
+
+// BirthdayLTE applies the LTE predicate on the "Birthday" field.
+func BirthdayLTE(v time.Time) predicate.Patient {
+	return predicate.Patient(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldBirthday), v))
 	})
 }
 

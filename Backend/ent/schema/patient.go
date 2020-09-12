@@ -4,6 +4,7 @@ import (
 	"github.com/facebookincubator/ent"
 	"github.com/facebookincubator/ent/schema/edge"
 	"github.com/facebookincubator/ent/schema/field"
+	"time"
 )
 
 // Patient holds the schema definition for the Patient entity.
@@ -19,6 +20,9 @@ func (Patient) Fields() []ent.Field {
 		field.String("Last_name").NotEmpty(),
 		field.String("Allergic").NotEmpty(),
 		field.Int("age").Positive(),
+		field.Time("Birthday").Default(time.Now).Immutable(),
+            
+            
 	}
 
 }

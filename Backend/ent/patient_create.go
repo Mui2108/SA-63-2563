@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
 	"github.com/facebookincubator/ent/schema/field"
@@ -49,6 +50,20 @@ func (pc *PatientCreate) SetAllergic(s string) *PatientCreate {
 // SetAge sets the age field.
 func (pc *PatientCreate) SetAge(i int) *PatientCreate {
 	pc.mutation.SetAge(i)
+	return pc
+}
+
+// SetBirthday sets the Birthday field.
+func (pc *PatientCreate) SetBirthday(t time.Time) *PatientCreate {
+	pc.mutation.SetBirthday(t)
+	return pc
+}
+
+// SetNillableBirthday sets the Birthday field if the given value is not nil.
+func (pc *PatientCreate) SetNillableBirthday(t *time.Time) *PatientCreate {
+	if t != nil {
+		pc.SetBirthday(*t)
+	}
 	return pc
 }
 
@@ -156,6 +171,10 @@ func (pc *PatientCreate) Save(ctx context.Context) (*Patient, error) {
 			return nil, &ValidationError{Name: "age", err: fmt.Errorf("ent: validator failed for field \"age\": %w", err)}
 		}
 	}
+	if _, ok := pc.mutation.Birthday(); !ok {
+		v := patient.DefaultBirthday()
+		pc.mutation.SetBirthday(v)
+	}
 	var (
 		err  error
 		node *Patient
@@ -255,6 +274,14 @@ func (pc *PatientCreate) createSpec() (*Patient, *sqlgraph.CreateSpec) {
 			Column: patient.FieldAge,
 		})
 		pa.Age = value
+	}
+	if value, ok := pc.mutation.Birthday(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: patient.FieldBirthday,
+		})
+		pa.Birthday = value
 	}
 	if nodes := pc.mutation.PatientsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

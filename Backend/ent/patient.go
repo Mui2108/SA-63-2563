@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/facebookincubator/ent/dialect/sql"
 	"github.com/panupong/app/ent/gender"
@@ -28,6 +29,8 @@ type Patient struct {
 	Allergic string `json:"Allergic,omitempty"`
 	// Age holds the value of the "age" field.
 	Age int `json:"age,omitempty"`
+	// Birthday holds the value of the "Birthday" field.
+	Birthday time.Time `json:"Birthday,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PatientQuery when eager-loading is set.
 	Edges          PatientEdges `json:"edges"`
@@ -100,6 +103,7 @@ func (*Patient) scanValues() []interface{} {
 		&sql.NullString{}, // Last_name
 		&sql.NullString{}, // Allergic
 		&sql.NullInt64{},  // age
+		&sql.NullTime{},   // Birthday
 	}
 }
 
@@ -149,7 +153,12 @@ func (pa *Patient) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		pa.Age = int(value.Int64)
 	}
-	values = values[5:]
+	if value, ok := values[5].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field Birthday", values[5])
+	} else if value.Valid {
+		pa.Birthday = value.Time
+	}
+	values = values[6:]
 	if len(values) == len(patient.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field gender_genders", value)
@@ -221,6 +230,8 @@ func (pa *Patient) String() string {
 	builder.WriteString(pa.Allergic)
 	builder.WriteString(", age=")
 	builder.WriteString(fmt.Sprintf("%v", pa.Age))
+	builder.WriteString(", Birthday=")
+	builder.WriteString(pa.Birthday.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

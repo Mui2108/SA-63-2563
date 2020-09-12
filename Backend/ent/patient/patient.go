@@ -2,6 +2,10 @@
 
 package patient
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the patient type in the database.
 	Label = "patient"
@@ -17,6 +21,8 @@ const (
 	FieldAllergic = "allergic"
 	// FieldAge holds the string denoting the age field in the database.
 	FieldAge = "age"
+	// FieldBirthday holds the string denoting the birthday field in the database.
+	FieldBirthday = "birthday"
 
 	// EdgePatients holds the string denoting the patients edge name in mutations.
 	EdgePatients = "patients"
@@ -58,6 +64,7 @@ var Columns = []string{
 	FieldLastName,
 	FieldAllergic,
 	FieldAge,
+	FieldBirthday,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the Patient type.
@@ -78,4 +85,6 @@ var (
 	AllergicValidator func(string) error
 	// AgeValidator is a validator for the "age" field. It is called by the builders before save.
 	AgeValidator func(int) error
+	// DefaultBirthday holds the default value on creation for the Birthday field.
+	DefaultBirthday func() time.Time
 )
