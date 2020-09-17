@@ -18,6 +18,190 @@
     "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
+        "/genders": {
+            "get": {
+                "description": "list gender entities",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List gender entities",
+                "operationId": "list-gender",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ent.Gender"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/genders/{id}": {
+            "get": {
+                "description": "get gender by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get a gender entity by ID",
+                "operationId": "get-gender",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "gender ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ent.Gender"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/jobs": {
+            "get": {
+                "description": "list job entities",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List job entities",
+                "operationId": "list-job",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ent.Job"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/jobs/{id}": {
+            "get": {
+                "description": "get job by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get a job entity by ID",
+                "operationId": "get-job",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ent.Job"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/patients": {
             "get": {
                 "description": "list patient entities",
@@ -243,6 +427,98 @@
                     }
                 }
             }
+        },
+        "/titles": {
+            "get": {
+                "description": "list title entities",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List title entities",
+                "operationId": "list-title",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ent.Title"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/titles/{id}": {
+            "get": {
+                "description": "get title by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get a title entity by ID",
+                "operationId": "get-title",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "title ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ent.Title"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -267,10 +543,12 @@
         "ent.GenderEdges": {
             "type": "object",
             "properties": {
-                "gen": {
-                    "description": "Gen holds the value of the gen edge.",
-                    "type": "object",
-                    "$ref": "#/definitions/ent.Patient"
+                "genders": {
+                    "description": "Genders holds the value of the genders edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Patient"
+                    }
                 }
             }
         },
@@ -295,10 +573,12 @@
         "ent.JobEdges": {
             "type": "object",
             "properties": {
-                "job": {
-                    "description": "Job holds the value of the job edge.",
-                    "type": "object",
-                    "$ref": "#/definitions/ent.Patient"
+                "jobs": {
+                    "description": "Jobs holds the value of the jobs edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Patient"
+                    }
                 }
             }
         },
@@ -307,6 +587,10 @@
             "properties": {
                 "Allergic": {
                     "description": "Allergic holds the value of the \"Allergic\" field.",
+                    "type": "string"
+                },
+                "Birthday": {
+                    "description": "Birthday holds the value of the \"Birthday\" field.",
                     "type": "string"
                 },
                 "Card_id": {
@@ -339,26 +623,20 @@
         "ent.PatientEdges": {
             "type": "object",
             "properties": {
-                "genders": {
-                    "description": "Genders holds the value of the genders edge.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/ent.Gender"
-                    }
+                "patients": {
+                    "description": "Patients holds the value of the patients edge.",
+                    "type": "object",
+                    "$ref": "#/definitions/ent.Gender"
                 },
-                "jobs": {
-                    "description": "Jobs holds the value of the jobs edge.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/ent.Job"
-                    }
+                "patients1": {
+                    "description": "Patients1 holds the value of the patients1 edge.",
+                    "type": "object",
+                    "$ref": "#/definitions/ent.Title"
                 },
-                "titles": {
-                    "description": "Titles holds the value of the titles edge.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/ent.Title"
-                    }
+                "patients2": {
+                    "description": "Patients2 holds the value of the patients2 edge.",
+                    "type": "object",
+                    "$ref": "#/definitions/ent.Job"
                 }
             }
         },
@@ -383,10 +661,12 @@
         "ent.TitleEdges": {
             "type": "object",
             "properties": {
-                "title": {
-                    "description": "Title holds the value of the title edge.",
-                    "type": "object",
-                    "$ref": "#/definitions/ent.Patient"
+                "titles": {
+                    "description": "Titles holds the value of the titles edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Patient"
+                    }
                 }
             }
         },

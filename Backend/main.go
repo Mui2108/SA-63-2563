@@ -69,6 +69,8 @@ func main() {
  
    v1 := router.Group("/api/v1")
    controllers.NewPatientController(v1, client)
+   controllers.NewGenderController(v1, client)
+   controllers.NewTitleController(v1, client)
  
    router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
    router.Run()

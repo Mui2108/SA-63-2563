@@ -31,8 +31,8 @@ func (Patient) Fields() []ent.Field {
 func (Patient) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("patients", Gender.Type).Ref("genders").Unique(),
-		edge.From("patients", Title.Type).Ref("titles").Unique(),
-		edge.From("patients", Job.Type).Ref("jobs").Unique(),
+		edge.From("patients1", Title.Type).Ref("titles").Unique(),
+		edge.From("patients2", Job.Type).Ref("jobs").Unique(),
 	}
 }
 	

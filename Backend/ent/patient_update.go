@@ -86,42 +86,42 @@ func (pu *PatientUpdate) SetPatients(g *Gender) *PatientUpdate {
 	return pu.SetPatientsID(g.ID)
 }
 
-// SetPatientsID sets the patients edge to Title by id.
-func (pu *PatientUpdate) SetPatientsID(id int) *PatientUpdate {
-	pu.mutation.SetPatientsID(id)
+// SetPatients1ID sets the patients1 edge to Title by id.
+func (pu *PatientUpdate) SetPatients1ID(id int) *PatientUpdate {
+	pu.mutation.SetPatients1ID(id)
 	return pu
 }
 
-// SetNillablePatientsID sets the patients edge to Title by id if the given value is not nil.
-func (pu *PatientUpdate) SetNillablePatientsID(id *int) *PatientUpdate {
+// SetNillablePatients1ID sets the patients1 edge to Title by id if the given value is not nil.
+func (pu *PatientUpdate) SetNillablePatients1ID(id *int) *PatientUpdate {
 	if id != nil {
-		pu = pu.SetPatientsID(*id)
+		pu = pu.SetPatients1ID(*id)
 	}
 	return pu
 }
 
-// SetPatients sets the patients edge to Title.
-func (pu *PatientUpdate) SetPatients(t *Title) *PatientUpdate {
-	return pu.SetPatientsID(t.ID)
+// SetPatients1 sets the patients1 edge to Title.
+func (pu *PatientUpdate) SetPatients1(t *Title) *PatientUpdate {
+	return pu.SetPatients1ID(t.ID)
 }
 
-// SetPatientsID sets the patients edge to Job by id.
-func (pu *PatientUpdate) SetPatientsID(id int) *PatientUpdate {
-	pu.mutation.SetPatientsID(id)
+// SetPatients2ID sets the patients2 edge to Job by id.
+func (pu *PatientUpdate) SetPatients2ID(id int) *PatientUpdate {
+	pu.mutation.SetPatients2ID(id)
 	return pu
 }
 
-// SetNillablePatientsID sets the patients edge to Job by id if the given value is not nil.
-func (pu *PatientUpdate) SetNillablePatientsID(id *int) *PatientUpdate {
+// SetNillablePatients2ID sets the patients2 edge to Job by id if the given value is not nil.
+func (pu *PatientUpdate) SetNillablePatients2ID(id *int) *PatientUpdate {
 	if id != nil {
-		pu = pu.SetPatientsID(*id)
+		pu = pu.SetPatients2ID(*id)
 	}
 	return pu
 }
 
-// SetPatients sets the patients edge to Job.
-func (pu *PatientUpdate) SetPatients(j *Job) *PatientUpdate {
-	return pu.SetPatientsID(j.ID)
+// SetPatients2 sets the patients2 edge to Job.
+func (pu *PatientUpdate) SetPatients2(j *Job) *PatientUpdate {
+	return pu.SetPatients2ID(j.ID)
 }
 
 // Mutation returns the PatientMutation object of the builder.
@@ -135,15 +135,15 @@ func (pu *PatientUpdate) ClearPatients() *PatientUpdate {
 	return pu
 }
 
-// ClearPatients clears the patients edge to Title.
-func (pu *PatientUpdate) ClearPatients() *PatientUpdate {
-	pu.mutation.ClearPatients()
+// ClearPatients1 clears the patients1 edge to Title.
+func (pu *PatientUpdate) ClearPatients1() *PatientUpdate {
+	pu.mutation.ClearPatients1()
 	return pu
 }
 
-// ClearPatients clears the patients edge to Job.
-func (pu *PatientUpdate) ClearPatients() *PatientUpdate {
-	pu.mutation.ClearPatients()
+// ClearPatients2 clears the patients2 edge to Job.
+func (pu *PatientUpdate) ClearPatients2() *PatientUpdate {
+	pu.mutation.ClearPatients2()
 	return pu
 }
 
@@ -319,12 +319,12 @@ func (pu *PatientUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if pu.mutation.PatientsCleared() {
+	if pu.mutation.Patients1Cleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   patient.PatientsTable,
-			Columns: []string{patient.PatientsColumn},
+			Table:   patient.Patients1Table,
+			Columns: []string{patient.Patients1Column},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -335,12 +335,12 @@ func (pu *PatientUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pu.mutation.PatientsIDs(); len(nodes) > 0 {
+	if nodes := pu.mutation.Patients1IDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   patient.PatientsTable,
-			Columns: []string{patient.PatientsColumn},
+			Table:   patient.Patients1Table,
+			Columns: []string{patient.Patients1Column},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -354,12 +354,12 @@ func (pu *PatientUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if pu.mutation.PatientsCleared() {
+	if pu.mutation.Patients2Cleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   patient.PatientsTable,
-			Columns: []string{patient.PatientsColumn},
+			Table:   patient.Patients2Table,
+			Columns: []string{patient.Patients2Column},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -370,12 +370,12 @@ func (pu *PatientUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pu.mutation.PatientsIDs(); len(nodes) > 0 {
+	if nodes := pu.mutation.Patients2IDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   patient.PatientsTable,
-			Columns: []string{patient.PatientsColumn},
+			Table:   patient.Patients2Table,
+			Columns: []string{patient.Patients2Column},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -463,42 +463,42 @@ func (puo *PatientUpdateOne) SetPatients(g *Gender) *PatientUpdateOne {
 	return puo.SetPatientsID(g.ID)
 }
 
-// SetPatientsID sets the patients edge to Title by id.
-func (puo *PatientUpdateOne) SetPatientsID(id int) *PatientUpdateOne {
-	puo.mutation.SetPatientsID(id)
+// SetPatients1ID sets the patients1 edge to Title by id.
+func (puo *PatientUpdateOne) SetPatients1ID(id int) *PatientUpdateOne {
+	puo.mutation.SetPatients1ID(id)
 	return puo
 }
 
-// SetNillablePatientsID sets the patients edge to Title by id if the given value is not nil.
-func (puo *PatientUpdateOne) SetNillablePatientsID(id *int) *PatientUpdateOne {
+// SetNillablePatients1ID sets the patients1 edge to Title by id if the given value is not nil.
+func (puo *PatientUpdateOne) SetNillablePatients1ID(id *int) *PatientUpdateOne {
 	if id != nil {
-		puo = puo.SetPatientsID(*id)
+		puo = puo.SetPatients1ID(*id)
 	}
 	return puo
 }
 
-// SetPatients sets the patients edge to Title.
-func (puo *PatientUpdateOne) SetPatients(t *Title) *PatientUpdateOne {
-	return puo.SetPatientsID(t.ID)
+// SetPatients1 sets the patients1 edge to Title.
+func (puo *PatientUpdateOne) SetPatients1(t *Title) *PatientUpdateOne {
+	return puo.SetPatients1ID(t.ID)
 }
 
-// SetPatientsID sets the patients edge to Job by id.
-func (puo *PatientUpdateOne) SetPatientsID(id int) *PatientUpdateOne {
-	puo.mutation.SetPatientsID(id)
+// SetPatients2ID sets the patients2 edge to Job by id.
+func (puo *PatientUpdateOne) SetPatients2ID(id int) *PatientUpdateOne {
+	puo.mutation.SetPatients2ID(id)
 	return puo
 }
 
-// SetNillablePatientsID sets the patients edge to Job by id if the given value is not nil.
-func (puo *PatientUpdateOne) SetNillablePatientsID(id *int) *PatientUpdateOne {
+// SetNillablePatients2ID sets the patients2 edge to Job by id if the given value is not nil.
+func (puo *PatientUpdateOne) SetNillablePatients2ID(id *int) *PatientUpdateOne {
 	if id != nil {
-		puo = puo.SetPatientsID(*id)
+		puo = puo.SetPatients2ID(*id)
 	}
 	return puo
 }
 
-// SetPatients sets the patients edge to Job.
-func (puo *PatientUpdateOne) SetPatients(j *Job) *PatientUpdateOne {
-	return puo.SetPatientsID(j.ID)
+// SetPatients2 sets the patients2 edge to Job.
+func (puo *PatientUpdateOne) SetPatients2(j *Job) *PatientUpdateOne {
+	return puo.SetPatients2ID(j.ID)
 }
 
 // Mutation returns the PatientMutation object of the builder.
@@ -512,15 +512,15 @@ func (puo *PatientUpdateOne) ClearPatients() *PatientUpdateOne {
 	return puo
 }
 
-// ClearPatients clears the patients edge to Title.
-func (puo *PatientUpdateOne) ClearPatients() *PatientUpdateOne {
-	puo.mutation.ClearPatients()
+// ClearPatients1 clears the patients1 edge to Title.
+func (puo *PatientUpdateOne) ClearPatients1() *PatientUpdateOne {
+	puo.mutation.ClearPatients1()
 	return puo
 }
 
-// ClearPatients clears the patients edge to Job.
-func (puo *PatientUpdateOne) ClearPatients() *PatientUpdateOne {
-	puo.mutation.ClearPatients()
+// ClearPatients2 clears the patients2 edge to Job.
+func (puo *PatientUpdateOne) ClearPatients2() *PatientUpdateOne {
+	puo.mutation.ClearPatients2()
 	return puo
 }
 
@@ -694,12 +694,12 @@ func (puo *PatientUpdateOne) sqlSave(ctx context.Context) (pa *Patient, err erro
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if puo.mutation.PatientsCleared() {
+	if puo.mutation.Patients1Cleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   patient.PatientsTable,
-			Columns: []string{patient.PatientsColumn},
+			Table:   patient.Patients1Table,
+			Columns: []string{patient.Patients1Column},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -710,12 +710,12 @@ func (puo *PatientUpdateOne) sqlSave(ctx context.Context) (pa *Patient, err erro
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := puo.mutation.PatientsIDs(); len(nodes) > 0 {
+	if nodes := puo.mutation.Patients1IDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   patient.PatientsTable,
-			Columns: []string{patient.PatientsColumn},
+			Table:   patient.Patients1Table,
+			Columns: []string{patient.Patients1Column},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -729,12 +729,12 @@ func (puo *PatientUpdateOne) sqlSave(ctx context.Context) (pa *Patient, err erro
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if puo.mutation.PatientsCleared() {
+	if puo.mutation.Patients2Cleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   patient.PatientsTable,
-			Columns: []string{patient.PatientsColumn},
+			Table:   patient.Patients2Table,
+			Columns: []string{patient.Patients2Column},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -745,12 +745,12 @@ func (puo *PatientUpdateOne) sqlSave(ctx context.Context) (pa *Patient, err erro
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := puo.mutation.PatientsIDs(); len(nodes) > 0 {
+	if nodes := puo.mutation.Patients2IDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   patient.PatientsTable,
-			Columns: []string{patient.PatientsColumn},
+			Table:   patient.Patients2Table,
+			Columns: []string{patient.Patients2Column},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

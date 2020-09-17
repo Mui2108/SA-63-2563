@@ -26,10 +26,10 @@ const (
 
 	// EdgePatients holds the string denoting the patients edge name in mutations.
 	EdgePatients = "patients"
-	// EdgePatients holds the string denoting the patients edge name in mutations.
-	EdgePatients = "patients"
-	// EdgePatients holds the string denoting the patients edge name in mutations.
-	EdgePatients = "patients"
+	// EdgePatients1 holds the string denoting the patients1 edge name in mutations.
+	EdgePatients1 = "patients1"
+	// EdgePatients2 holds the string denoting the patients2 edge name in mutations.
+	EdgePatients2 = "patients2"
 
 	// Table holds the table name of the patient in the database.
 	Table = "patients"
@@ -40,20 +40,20 @@ const (
 	PatientsInverseTable = "genders"
 	// PatientsColumn is the table column denoting the patients relation/edge.
 	PatientsColumn = "gender_genders"
-	// PatientsTable is the table the holds the patients relation/edge.
-	PatientsTable = "patients"
-	// PatientsInverseTable is the table name for the Title entity.
+	// Patients1Table is the table the holds the patients1 relation/edge.
+	Patients1Table = "patients"
+	// Patients1InverseTable is the table name for the Title entity.
 	// It exists in this package in order to avoid circular dependency with the "title" package.
-	PatientsInverseTable = "titles"
-	// PatientsColumn is the table column denoting the patients relation/edge.
-	PatientsColumn = "title_titles"
-	// PatientsTable is the table the holds the patients relation/edge.
-	PatientsTable = "patients"
-	// PatientsInverseTable is the table name for the Job entity.
+	Patients1InverseTable = "titles"
+	// Patients1Column is the table column denoting the patients1 relation/edge.
+	Patients1Column = "title_titles"
+	// Patients2Table is the table the holds the patients2 relation/edge.
+	Patients2Table = "patients"
+	// Patients2InverseTable is the table name for the Job entity.
 	// It exists in this package in order to avoid circular dependency with the "job" package.
-	PatientsInverseTable = "jobs"
-	// PatientsColumn is the table column denoting the patients relation/edge.
-	PatientsColumn = "job_jobs"
+	Patients2InverseTable = "jobs"
+	// Patients2Column is the table column denoting the patients2 relation/edge.
+	Patients2Column = "job_jobs"
 )
 
 // Columns holds all SQL columns for patient fields.

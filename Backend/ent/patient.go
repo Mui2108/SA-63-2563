@@ -43,10 +43,10 @@ type Patient struct {
 type PatientEdges struct {
 	// Patients holds the value of the patients edge.
 	Patients *Gender
-	// Patients holds the value of the patients edge.
-	Patients *Title
-	// Patients holds the value of the patients edge.
-	Patients *Job
+	// Patients1 holds the value of the patients1 edge.
+	Patients1 *Title
+	// Patients2 holds the value of the patients2 edge.
+	Patients2 *Job
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
@@ -66,32 +66,32 @@ func (e PatientEdges) PatientsOrErr() (*Gender, error) {
 	return nil, &NotLoadedError{edge: "patients"}
 }
 
-// PatientsOrErr returns the Patients value or an error if the edge
+// Patients1OrErr returns the Patients1 value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e PatientEdges) PatientsOrErr() (*Title, error) {
+func (e PatientEdges) Patients1OrErr() (*Title, error) {
 	if e.loadedTypes[1] {
-		if e.Patients == nil {
-			// The edge patients was loaded in eager-loading,
+		if e.Patients1 == nil {
+			// The edge patients1 was loaded in eager-loading,
 			// but was not found.
 			return nil, &NotFoundError{label: title.Label}
 		}
-		return e.Patients, nil
+		return e.Patients1, nil
 	}
-	return nil, &NotLoadedError{edge: "patients"}
+	return nil, &NotLoadedError{edge: "patients1"}
 }
 
-// PatientsOrErr returns the Patients value or an error if the edge
+// Patients2OrErr returns the Patients2 value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e PatientEdges) PatientsOrErr() (*Job, error) {
+func (e PatientEdges) Patients2OrErr() (*Job, error) {
 	if e.loadedTypes[2] {
-		if e.Patients == nil {
-			// The edge patients was loaded in eager-loading,
+		if e.Patients2 == nil {
+			// The edge patients2 was loaded in eager-loading,
 			// but was not found.
 			return nil, &NotFoundError{label: job.Label}
 		}
-		return e.Patients, nil
+		return e.Patients2, nil
 	}
-	return nil, &NotLoadedError{edge: "patients"}
+	return nil, &NotLoadedError{edge: "patients2"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -187,14 +187,14 @@ func (pa *Patient) QueryPatients() *GenderQuery {
 	return (&PatientClient{config: pa.config}).QueryPatients(pa)
 }
 
-// QueryPatients queries the patients edge of the Patient.
-func (pa *Patient) QueryPatients() *TitleQuery {
-	return (&PatientClient{config: pa.config}).QueryPatients(pa)
+// QueryPatients1 queries the patients1 edge of the Patient.
+func (pa *Patient) QueryPatients1() *TitleQuery {
+	return (&PatientClient{config: pa.config}).QueryPatients1(pa)
 }
 
-// QueryPatients queries the patients edge of the Patient.
-func (pa *Patient) QueryPatients() *JobQuery {
-	return (&PatientClient{config: pa.config}).QueryPatients(pa)
+// QueryPatients2 queries the patients2 edge of the Patient.
+func (pa *Patient) QueryPatients2() *JobQuery {
+	return (&PatientClient{config: pa.config}).QueryPatients2(pa)
 }
 
 // Update returns a builder for updating this Patient.

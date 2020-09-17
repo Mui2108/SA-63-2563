@@ -430,15 +430,15 @@ func (c *PatientClient) QueryPatients(pa *Patient) *GenderQuery {
 	return query
 }
 
-// QueryPatients queries the patients edge of a Patient.
-func (c *PatientClient) QueryPatients(pa *Patient) *TitleQuery {
+// QueryPatients1 queries the patients1 edge of a Patient.
+func (c *PatientClient) QueryPatients1(pa *Patient) *TitleQuery {
 	query := &TitleQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := pa.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(patient.Table, patient.FieldID, id),
 			sqlgraph.To(title.Table, title.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, patient.PatientsTable, patient.PatientsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, patient.Patients1Table, patient.Patients1Column),
 		)
 		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
 		return fromV, nil
@@ -446,15 +446,15 @@ func (c *PatientClient) QueryPatients(pa *Patient) *TitleQuery {
 	return query
 }
 
-// QueryPatients queries the patients edge of a Patient.
-func (c *PatientClient) QueryPatients(pa *Patient) *JobQuery {
+// QueryPatients2 queries the patients2 edge of a Patient.
+func (c *PatientClient) QueryPatients2(pa *Patient) *JobQuery {
 	query := &JobQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := pa.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(patient.Table, patient.FieldID, id),
 			sqlgraph.To(job.Table, job.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, patient.PatientsTable, patient.PatientsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, patient.Patients2Table, patient.Patients2Column),
 		)
 		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
 		return fromV, nil

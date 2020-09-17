@@ -17,10 +17,11 @@ definitions:
     type: object
   ent.GenderEdges:
     properties:
-      gen:
-        $ref: '#/definitions/ent.Patient'
-        description: Gen holds the value of the gen edge.
-        type: object
+      genders:
+        description: Genders holds the value of the genders edge.
+        items:
+          $ref: '#/definitions/ent.Patient'
+        type: array
     type: object
   ent.Job:
     properties:
@@ -39,15 +40,19 @@ definitions:
     type: object
   ent.JobEdges:
     properties:
-      job:
-        $ref: '#/definitions/ent.Patient'
-        description: Job holds the value of the job edge.
-        type: object
+      jobs:
+        description: Jobs holds the value of the jobs edge.
+        items:
+          $ref: '#/definitions/ent.Patient'
+        type: array
     type: object
   ent.Patient:
     properties:
       Allergic:
         description: Allergic holds the value of the "Allergic" field.
+        type: string
+      Birthday:
+        description: Birthday holds the value of the "Birthday" field.
         type: string
       Card_id:
         description: CardID holds the value of the "Card_id" field.
@@ -73,21 +78,18 @@ definitions:
     type: object
   ent.PatientEdges:
     properties:
-      genders:
-        description: Genders holds the value of the genders edge.
-        items:
-          $ref: '#/definitions/ent.Gender'
-        type: array
-      jobs:
-        description: Jobs holds the value of the jobs edge.
-        items:
-          $ref: '#/definitions/ent.Job'
-        type: array
-      titles:
-        description: Titles holds the value of the titles edge.
-        items:
-          $ref: '#/definitions/ent.Title'
-        type: array
+      patients:
+        $ref: '#/definitions/ent.Gender'
+        description: Patients holds the value of the patients edge.
+        type: object
+      patients1:
+        $ref: '#/definitions/ent.Title'
+        description: Patients1 holds the value of the patients1 edge.
+        type: object
+      patients2:
+        $ref: '#/definitions/ent.Job'
+        description: Patients2 holds the value of the patients2 edge.
+        type: object
     type: object
   ent.Title:
     properties:
@@ -106,10 +108,11 @@ definitions:
     type: object
   ent.TitleEdges:
     properties:
-      title:
-        $ref: '#/definitions/ent.Patient'
-        description: Title holds the value of the title edge.
-        type: object
+      titles:
+        description: Titles holds the value of the titles edge.
+        items:
+          $ref: '#/definitions/ent.Patient'
+        type: array
     type: object
   gin.H:
     additionalProperties: true
@@ -128,6 +131,128 @@ info:
   title: SUT SA Example API
   version: "1.0"
 paths:
+  /genders:
+    get:
+      description: list gender entities
+      operationId: list-gender
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ent.Gender'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: List gender entities
+  /genders/{id}:
+    get:
+      description: get gender by ID
+      operationId: get-gender
+      parameters:
+      - description: gender ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ent.Gender'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get a gender entity by ID
+  /jobs:
+    get:
+      description: list job entities
+      operationId: list-job
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ent.Job'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: List job entities
+  /jobs/{id}:
+    get:
+      description: get job by ID
+      operationId: get-job
+      parameters:
+      - description: job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ent.Job'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get a job entity by ID
   /patients:
     get:
       description: list patient entities
@@ -279,6 +404,67 @@ paths:
           schema:
             $ref: '#/definitions/gin.H'
       summary: Update a patient entity by ID
+  /titles:
+    get:
+      description: list title entities
+      operationId: list-title
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ent.Title'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: List title entities
+  /titles/{id}:
+    get:
+      description: get title by ID
+      operationId: get-title
+      parameters:
+      - description: title ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ent.Title'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get a title entity by ID
 securityDefinitions:
   ApiKeyAuth:
     in: header

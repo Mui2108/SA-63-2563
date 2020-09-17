@@ -771,25 +771,25 @@ func (m *JobMutation) ResetEdge(name string) error {
 // nodes in the graph.
 type PatientMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	_Card_id        *string
-	_Fist_name      *string
-	_Last_name      *string
-	_Allergic       *string
-	age             *int
-	addage          *int
-	_Birthday       *time.Time
-	clearedFields   map[string]struct{}
-	patients        *int
-	clearedpatients bool
-	patients        *int
-	clearedpatients bool
-	patients        *int
-	clearedpatients bool
-	done            bool
-	oldValue        func(context.Context) (*Patient, error)
+	op               Op
+	typ              string
+	id               *int
+	_Card_id         *string
+	_Fist_name       *string
+	_Last_name       *string
+	_Allergic        *string
+	age              *int
+	addage           *int
+	_Birthday        *time.Time
+	clearedFields    map[string]struct{}
+	patients         *int
+	clearedpatients  bool
+	patients1        *int
+	clearedpatients1 bool
+	patients2        *int
+	clearedpatients2 bool
+	done             bool
+	oldValue         func(context.Context) (*Patient, error)
 }
 
 var _ ent.Mutation = (*PatientMutation)(nil)
@@ -1152,82 +1152,82 @@ func (m *PatientMutation) ResetPatients() {
 	m.clearedpatients = false
 }
 
-// SetPatientsID sets the patients edge to Title by id.
-func (m *PatientMutation) SetPatientsID(id int) {
-	m.patients = &id
+// SetPatients1ID sets the patients1 edge to Title by id.
+func (m *PatientMutation) SetPatients1ID(id int) {
+	m.patients1 = &id
 }
 
-// ClearPatients clears the patients edge to Title.
-func (m *PatientMutation) ClearPatients() {
-	m.clearedpatients = true
+// ClearPatients1 clears the patients1 edge to Title.
+func (m *PatientMutation) ClearPatients1() {
+	m.clearedpatients1 = true
 }
 
-// PatientsCleared returns if the edge patients was cleared.
-func (m *PatientMutation) PatientsCleared() bool {
-	return m.clearedpatients
+// Patients1Cleared returns if the edge patients1 was cleared.
+func (m *PatientMutation) Patients1Cleared() bool {
+	return m.clearedpatients1
 }
 
-// PatientsID returns the patients id in the mutation.
-func (m *PatientMutation) PatientsID() (id int, exists bool) {
-	if m.patients != nil {
-		return *m.patients, true
+// Patients1ID returns the patients1 id in the mutation.
+func (m *PatientMutation) Patients1ID() (id int, exists bool) {
+	if m.patients1 != nil {
+		return *m.patients1, true
 	}
 	return
 }
 
-// PatientsIDs returns the patients ids in the mutation.
+// Patients1IDs returns the patients1 ids in the mutation.
 // Note that ids always returns len(ids) <= 1 for unique edges, and you should use
-// PatientsID instead. It exists only for internal usage by the builders.
-func (m *PatientMutation) PatientsIDs() (ids []int) {
-	if id := m.patients; id != nil {
+// Patients1ID instead. It exists only for internal usage by the builders.
+func (m *PatientMutation) Patients1IDs() (ids []int) {
+	if id := m.patients1; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetPatients reset all changes of the "patients" edge.
-func (m *PatientMutation) ResetPatients() {
-	m.patients = nil
-	m.clearedpatients = false
+// ResetPatients1 reset all changes of the "patients1" edge.
+func (m *PatientMutation) ResetPatients1() {
+	m.patients1 = nil
+	m.clearedpatients1 = false
 }
 
-// SetPatientsID sets the patients edge to Job by id.
-func (m *PatientMutation) SetPatientsID(id int) {
-	m.patients = &id
+// SetPatients2ID sets the patients2 edge to Job by id.
+func (m *PatientMutation) SetPatients2ID(id int) {
+	m.patients2 = &id
 }
 
-// ClearPatients clears the patients edge to Job.
-func (m *PatientMutation) ClearPatients() {
-	m.clearedpatients = true
+// ClearPatients2 clears the patients2 edge to Job.
+func (m *PatientMutation) ClearPatients2() {
+	m.clearedpatients2 = true
 }
 
-// PatientsCleared returns if the edge patients was cleared.
-func (m *PatientMutation) PatientsCleared() bool {
-	return m.clearedpatients
+// Patients2Cleared returns if the edge patients2 was cleared.
+func (m *PatientMutation) Patients2Cleared() bool {
+	return m.clearedpatients2
 }
 
-// PatientsID returns the patients id in the mutation.
-func (m *PatientMutation) PatientsID() (id int, exists bool) {
-	if m.patients != nil {
-		return *m.patients, true
+// Patients2ID returns the patients2 id in the mutation.
+func (m *PatientMutation) Patients2ID() (id int, exists bool) {
+	if m.patients2 != nil {
+		return *m.patients2, true
 	}
 	return
 }
 
-// PatientsIDs returns the patients ids in the mutation.
+// Patients2IDs returns the patients2 ids in the mutation.
 // Note that ids always returns len(ids) <= 1 for unique edges, and you should use
-// PatientsID instead. It exists only for internal usage by the builders.
-func (m *PatientMutation) PatientsIDs() (ids []int) {
-	if id := m.patients; id != nil {
+// Patients2ID instead. It exists only for internal usage by the builders.
+func (m *PatientMutation) Patients2IDs() (ids []int) {
+	if id := m.patients2; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetPatients reset all changes of the "patients" edge.
-func (m *PatientMutation) ResetPatients() {
-	m.patients = nil
-	m.clearedpatients = false
+// ResetPatients2 reset all changes of the "patients2" edge.
+func (m *PatientMutation) ResetPatients2() {
+	m.patients2 = nil
+	m.clearedpatients2 = false
 }
 
 // Op returns the operation name.
@@ -1449,11 +1449,11 @@ func (m *PatientMutation) AddedEdges() []string {
 	if m.patients != nil {
 		edges = append(edges, patient.EdgePatients)
 	}
-	if m.patients != nil {
-		edges = append(edges, patient.EdgePatients)
+	if m.patients1 != nil {
+		edges = append(edges, patient.EdgePatients1)
 	}
-	if m.patients != nil {
-		edges = append(edges, patient.EdgePatients)
+	if m.patients2 != nil {
+		edges = append(edges, patient.EdgePatients2)
 	}
 	return edges
 }
@@ -1466,12 +1466,12 @@ func (m *PatientMutation) AddedIDs(name string) []ent.Value {
 		if id := m.patients; id != nil {
 			return []ent.Value{*id}
 		}
-	case patient.EdgePatients:
-		if id := m.patients; id != nil {
+	case patient.EdgePatients1:
+		if id := m.patients1; id != nil {
 			return []ent.Value{*id}
 		}
-	case patient.EdgePatients:
-		if id := m.patients; id != nil {
+	case patient.EdgePatients2:
+		if id := m.patients2; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -1500,11 +1500,11 @@ func (m *PatientMutation) ClearedEdges() []string {
 	if m.clearedpatients {
 		edges = append(edges, patient.EdgePatients)
 	}
-	if m.clearedpatients {
-		edges = append(edges, patient.EdgePatients)
+	if m.clearedpatients1 {
+		edges = append(edges, patient.EdgePatients1)
 	}
-	if m.clearedpatients {
-		edges = append(edges, patient.EdgePatients)
+	if m.clearedpatients2 {
+		edges = append(edges, patient.EdgePatients2)
 	}
 	return edges
 }
@@ -1515,10 +1515,10 @@ func (m *PatientMutation) EdgeCleared(name string) bool {
 	switch name {
 	case patient.EdgePatients:
 		return m.clearedpatients
-	case patient.EdgePatients:
-		return m.clearedpatients
-	case patient.EdgePatients:
-		return m.clearedpatients
+	case patient.EdgePatients1:
+		return m.clearedpatients1
+	case patient.EdgePatients2:
+		return m.clearedpatients2
 	}
 	return false
 }
@@ -1530,11 +1530,11 @@ func (m *PatientMutation) ClearEdge(name string) error {
 	case patient.EdgePatients:
 		m.ClearPatients()
 		return nil
-	case patient.EdgePatients:
-		m.ClearPatients()
+	case patient.EdgePatients1:
+		m.ClearPatients1()
 		return nil
-	case patient.EdgePatients:
-		m.ClearPatients()
+	case patient.EdgePatients2:
+		m.ClearPatients2()
 		return nil
 	}
 	return fmt.Errorf("unknown Patient unique edge %s", name)
@@ -1548,11 +1548,11 @@ func (m *PatientMutation) ResetEdge(name string) error {
 	case patient.EdgePatients:
 		m.ResetPatients()
 		return nil
-	case patient.EdgePatients:
-		m.ResetPatients()
+	case patient.EdgePatients1:
+		m.ResetPatients1()
 		return nil
-	case patient.EdgePatients:
-		m.ResetPatients()
+	case patient.EdgePatients2:
+		m.ResetPatients2()
 		return nil
 	}
 	return fmt.Errorf("unknown Patient edge %s", name)
