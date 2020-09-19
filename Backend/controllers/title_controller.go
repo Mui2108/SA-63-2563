@@ -1,20 +1,19 @@
 package controllers
- 
+
 import (
-   "context"
-   "strconv"
-   "github.com/panupong/app/ent"
-   "github.com/panupong/app/ent/title"
-   "github.com/gin-gonic/gin"
+	"context"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/panupong/app/ent"
+	"github.com/panupong/app/ent/title"
 )
- 
+
 // TitleController defines the struct for the title controller
 type TitleController struct {
-   client *ent.Client
-   router gin.IRouter
+	client *ent.Client
+	router gin.IRouter
 }
-
-
 
 // GetTitle handles GET requests to retrieve a title entity
 // @Summary Get a title entity by ID
@@ -35,7 +34,7 @@ func (ctl *TitleController) GetTitle(c *gin.Context) {
 		})
 		return
 	}
-  
+
 	u, err := ctl.client.Title.
 		Query().
 		Where(title.IDEQ(int(id))).
@@ -46,12 +45,11 @@ func (ctl *TitleController) GetTitle(c *gin.Context) {
 		})
 		return
 	}
-  
-	c.JSON(200, u)
- }
- 
 
- // ListTitle handles request to get a list of title entities
+	c.JSON(200, u)
+}
+
+// ListTitle handles request to get a list of title entities
 // @Summary List title entities
 // @Description list title entities
 // @ID list-title
@@ -67,30 +65,34 @@ func (ctl *TitleController) ListTitle(c *gin.Context) {
 	limit := 10
 	if limitQuery != "" {
 		limit64, err := strconv.ParseInt(limitQuery, 10, 64)
-		if err == nil {limit = int(limit64)}
+		if err == nil {
+			limit = int(limit64)
+		}
 	}
-  
+
 	offsetQuery := c.Query("offset")
 	offset := 0
 	if offsetQuery != "" {
 		offset64, err := strconv.ParseInt(offsetQuery, 10, 64)
-		if err == nil {offset = int(offset64)}
+		if err == nil {
+			offset = int(offset64)
+		}
 	}
-  
+
 	titles, err := ctl.client.Title.
 		Query().
 		Limit(limit).
 		Offset(offset).
 		All(context.Background())
-		if err != nil {
-		c.JSON(400, gin.H{"error": err.Error(),})
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-  
+
 	c.JSON(200, titles)
- }
- 
- // NewTitleController creates and registers handles for the title controller
+}
+
+// NewTitleController creates and registers handles for the title controller
 func NewTitleController(router gin.IRouter, client *ent.Client) *TitleController {
 	uc := &TitleController{
 		client: client,
@@ -98,15 +100,14 @@ func NewTitleController(router gin.IRouter, client *ent.Client) *TitleController
 	}
 	uc.register()
 	return uc
- }
-  
- // InitTitleController registers routes to the main engine
- func (ctl *TitleController) register() {
+}
+
+// InitTitleController registers routes to the main engine
+func (ctl *TitleController) register() {
 	titles := ctl.router.Group("/titles")
-  
+
 	titles.GET("", ctl.ListTitle)
 	// CRUD
 	titles.GET(":id", ctl.GetTitle)
 
- }
- 
+}

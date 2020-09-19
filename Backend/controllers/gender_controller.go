@@ -1,20 +1,18 @@
 package controllers
- 
+
 import (
-   "context"
-   "strconv"
-   "github.com/panupong/app/ent"
-   "github.com/panupong/app/ent/gender"
-   "github.com/gin-gonic/gin"
+	"context"
+	"strconv"
+	"github.com/gin-gonic/gin"
+	"github.com/panupong/app/ent"
+	"github.com/panupong/app/ent/gender"
 )
- 
+
 // GenderController defines the struct for the gender controller
 type GenderController struct {
-   client *ent.Client
-   router gin.IRouter
+	client *ent.Client
+	router gin.IRouter
 }
-
-
 
 // GetGender handles GET requests to retrieve a gender entity
 // @Summary Get a gender entity by ID
@@ -35,7 +33,7 @@ func (ctl *GenderController) GetGender(c *gin.Context) {
 		})
 		return
 	}
-  
+
 	u, err := ctl.client.Gender.
 		Query().
 		Where(gender.IDEQ(int(id))).
@@ -46,12 +44,11 @@ func (ctl *GenderController) GetGender(c *gin.Context) {
 		})
 		return
 	}
-  
-	c.JSON(200, u)
- }
- 
 
- // ListGender handles request to get a list of gender entities
+	c.JSON(200, u)
+}
+
+// ListGender handles request to get a list of gender entities
 // @Summary List gender entities
 // @Description list gender entities
 // @ID list-gender
@@ -67,30 +64,34 @@ func (ctl *GenderController) ListGender(c *gin.Context) {
 	limit := 10
 	if limitQuery != "" {
 		limit64, err := strconv.ParseInt(limitQuery, 10, 64)
-		if err == nil {limit = int(limit64)}
+		if err == nil {
+			limit = int(limit64)
+		}
 	}
-  
+
 	offsetQuery := c.Query("offset")
 	offset := 0
 	if offsetQuery != "" {
 		offset64, err := strconv.ParseInt(offsetQuery, 10, 64)
-		if err == nil {offset = int(offset64)}
+		if err == nil {
+			offset = int(offset64)
+		}
 	}
-  
+
 	genders, err := ctl.client.Gender.
 		Query().
 		Limit(limit).
 		Offset(offset).
 		All(context.Background())
-		if err != nil {
-		c.JSON(400, gin.H{"error": err.Error(),})
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-  
+
 	c.JSON(200, genders)
- }
- 
- // NewGenderController creates and registers handles for the gender controller
+}
+
+// NewGenderController creates and registers handles for the gender controller
 func NewGenderController(router gin.IRouter, client *ent.Client) *GenderController {
 	uc := &GenderController{
 		client: client,
@@ -98,15 +99,14 @@ func NewGenderController(router gin.IRouter, client *ent.Client) *GenderControll
 	}
 	uc.register()
 	return uc
- }
-  
- // InitGenderController registers routes to the main engine
- func (ctl *GenderController) register() {
+}
+
+// InitGenderController registers routes to the main engine
+func (ctl *GenderController) register() {
 	genders := ctl.router.Group("/genders")
-  
+
 	genders.GET("", ctl.ListGender)
 	// CRUD
 	genders.GET(":id", ctl.GetGender)
 
- }
- 
+}

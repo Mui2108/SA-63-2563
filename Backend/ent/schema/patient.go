@@ -1,17 +1,14 @@
 package schema
-
 import (
+	"time"
 	"github.com/facebookincubator/ent"
 	"github.com/facebookincubator/ent/schema/edge"
 	"github.com/facebookincubator/ent/schema/field"
-	"time"
 )
-
 // Patient holds the schema definition for the Patient entity.
 type Patient struct {
 	ent.Schema
 }
-
 // Fields of the Patient.
 func (Patient) Fields() []ent.Field {
 	return []ent.Field{
@@ -21,12 +18,8 @@ func (Patient) Fields() []ent.Field {
 		field.String("Allergic").NotEmpty(),
 		field.Int("age").Positive(),
 		field.Time("Birthday").Default(time.Now).Immutable(),
-            
-            
 	}
-
 }
-
 // Edges of the Patient.
 func (Patient) Edges() []ent.Edge {
 	return []ent.Edge{
@@ -35,4 +28,3 @@ func (Patient) Edges() []ent.Edge {
 		edge.From("patients2", Job.Type).Ref("jobs").Unique(),
 	}
 }
-	

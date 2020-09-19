@@ -1,20 +1,19 @@
 package controllers
- 
+
 import (
-   "context"
-   "strconv"
-   "github.com/panupong/app/ent"
-   "github.com/panupong/app/ent/job"
-   "github.com/gin-gonic/gin"
+	"context"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/panupong/app/ent"
+	"github.com/panupong/app/ent/job"
 )
- 
+
 // JobController defines the struct for the job controller
 type JobController struct {
-   client *ent.Client
-   router gin.IRouter
+	client *ent.Client
+	router gin.IRouter
 }
-
-
 
 // GetJob handles GET requests to retrieve a Job entity
 // @Summary Get a job entity by ID
@@ -35,7 +34,7 @@ func (ctl *JobController) GetJob(c *gin.Context) {
 		})
 		return
 	}
-  
+
 	u, err := ctl.client.Job.
 		Query().
 		Where(job.IDEQ(int(id))).
@@ -46,12 +45,11 @@ func (ctl *JobController) GetJob(c *gin.Context) {
 		})
 		return
 	}
-  
-	c.JSON(200, u)
- }
- 
 
- // ListJob handles request to get a list of job entities
+	c.JSON(200, u)
+}
+
+// ListJob handles request to get a list of job entities
 // @Summary List job entities
 // @Description list job entities
 // @ID list-job
@@ -67,30 +65,34 @@ func (ctl *JobController) ListJob(c *gin.Context) {
 	limit := 10
 	if limitQuery != "" {
 		limit64, err := strconv.ParseInt(limitQuery, 10, 64)
-		if err == nil {limit = int(limit64)}
+		if err == nil {
+			limit = int(limit64)
+		}
 	}
-  
+
 	offsetQuery := c.Query("offset")
 	offset := 0
 	if offsetQuery != "" {
 		offset64, err := strconv.ParseInt(offsetQuery, 10, 64)
-		if err == nil {offset = int(offset64)}
+		if err == nil {
+			offset = int(offset64)
+		}
 	}
-  
+
 	jobs, err := ctl.client.Job.
 		Query().
 		Limit(limit).
 		Offset(offset).
 		All(context.Background())
-		if err != nil {
-		c.JSON(400, gin.H{"error": err.Error(),})
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-  
+
 	c.JSON(200, jobs)
- }
- 
- // NewJobController creates and registers handles for the job controller
+}
+
+// NewJobController creates and registers handles for the job controller
 func NewJobController(router gin.IRouter, client *ent.Client) *JobController {
 	uc := &JobController{
 		client: client,
@@ -98,15 +100,14 @@ func NewJobController(router gin.IRouter, client *ent.Client) *JobController {
 	}
 	uc.register()
 	return uc
- }
-  
- // InitJobController registers routes to the main engine
- func (ctl *JobController) register() {
+}
+
+// InitJobController registers routes to the main engine
+func (ctl *JobController) register() {
 	jobs := ctl.router.Group("/jobs")
-  
+
 	jobs.GET("", ctl.ListJob)
 	// CRUD
 	jobs.GET(":id", ctl.GetJob)
 
- }
- 
+}
