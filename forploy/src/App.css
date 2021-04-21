@@ -1,0 +1,94 @@
+@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@300&display=swap");
+.App {
+  font-family: "Kanit", sans-serif;
+  text-align: center;
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f3f3;
+}
+.div {
+  font-family: "Kanit", sans-serif;
+  background-color: #f3f3f3;
+}
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.Doing {
+  font-family: "Kanit", sans-serif;
+  width: 40vw;
+  height: 90vh;
+  font-size: 0.5vw;
+  background-color: dimgray;
+}
+.Done {
+  font-family: "Kanit", sans-serif;
+  width: 40vw;
+  height: 90vh;
+  background-color: dimgray;
+}
+.Doing h1 {
+  font-size: 4vw;
+}
+.Done h1 {
+  font-size: 4vw;
+}
+.desktop {
+  width: 100vw;
+  height: 100%;
+  background-color: aquamarine;
+}
+.ant-card.ant-card-bordered {
+  border-radius: 38px;
+}
+.ant-card.ant-card-bordered.Doing {
+  background-color: #b3c598;
+  height: 100%;
+}
+.ant-card.ant-card-bordered.Done {
+  background-color: #77a1be;
+  height: 100%;
+}
+.ant-card.ant-card-bordered.CardEvant {
+  border-radius: 15px;
+  background-color: #eeede7;
+  width: 18vw;
+  text-align: left;
+  font-size: 1vw;
+}
+.ant-btn.ant-btn-primary.ant-btn-lg.ant-btn-icon-only {
+  background-color: skyblue;
+}
